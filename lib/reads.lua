@@ -1,3 +1,4 @@
+geoip = require "geoip"
 local args = ngx.req.get_uri_args()
 local postId = args["post_id"];
 local userSlug = args["user_slug"];

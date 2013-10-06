@@ -5,4 +5,6 @@ group :development, :test do
   gem 'guard-rspec'
   gem 'spork'
   gem 'rspec'
+  gem 'redis'
+  gem 'redis-rails'
 end

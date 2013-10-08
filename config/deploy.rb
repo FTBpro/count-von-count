@@ -36,7 +36,7 @@ set :use_sudo, false
 set :nginx_dir, "/usr/local/openresty/nginx"
 # set(:rails_env) { stage }
 
-server "ec2-54-214-109-198.us-west-2.compute.amazonaws.com", :app, :web, :db
+server "54.214.47.91", :app, :web, :db
 
 after 'deploy:setup', 'nginx:folder_permissions', 'symlink:app', 'symlink:conf', 'redis:start', 'nginx:start'
 before 'deploy:restart', 'deploy:load_redis_lua'

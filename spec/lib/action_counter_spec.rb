@@ -1,21 +1,11 @@
 require 'spec_helper'
-
-HOST = "127.0.0.1"
-
+require 'script_loader'
 describe "ActionCounter" do
+  HOST = "127.0.0.1"
   before :all do
-    `ruby lib/load_nginx_lua_script.rb`
+    ScriptLoader.load
     @redis = Redis.new(host: HOST, port: "6379")
   end
-  # before do
-  #   @old_reads_count = Integer(`redis-cli get 'post_reads_131'`)
-  #   `curl "http://localhost:8090/reads?post_id=131&user_id=50"`
-  # end
-  # context "post reads" do
-  #   it "should increment post reads by 1" do
-  #     Integer(`redis-cli get 'post_reads_131'`).should eq (@old_reads_count + 1)
-  #   end
-  # end
 
   describe "Read Action" do
     before :all do
@@ -33,18 +23,45 @@ describe "ActionCounter" do
     end
 
     before :all do
-      `curl "http://#{HOST}/reads?post_id=131&user_id=#{@user_id}&author_id=#{@author_id}"`
+      @post_id = 240786
+      @post_key = "post_#{@post_id}"
+      @post_data = Hash.new(0)
+      @post_data.merge!(@redis.hgetall @post_key)
+    end
+
+    before :all do
+      @user_id = 5
+      @week_index = Time.now.strftime("%W")
+      @user_weekly_key = "user_#{@user_id}_week_#{@week_index}"
+      @user_weekly_data = Hash.new(0)
+      @user_weekly_data.merge!(@redis.hgetall @user_weekly_key)
+    end
+
+    before :all do
+      `curl "http://#{HOST}/reads?post_id=#{@post_id}&user_id=#{@user_id}&author_id=#{@author_id}"`
     end
 
     describe "User" do
       it "should increase the reads of the user by one" do
-        @redis.hget(@user_key, "reads").to_i.should == @user_data["reads"].to_i + 1
+        @redis.hget(@user_key, "reads").to_i.should eq @user_data["reads"].to_i + 1
       end
     end
 
     describe "Author" do
       it "should increase the post's author num of time he's been read" do
-        @redis.hget(@author_key, "been_read").to_i.should == @author_data["been_read"].to_i + 1
+        @redis.hget(@author_key, "been_read").to_i.should eq @author_data["been_read"].to_i + 1
+      end
+    end
+
+    describe "Post" do
+      it "should increase the post reads counter" do
+        @redis.hget(@post_key, "reads").to_i.should eq @post_data["reads"].to_i + 1
+      end
+    end
+
+    describe "UserWeekly" do
+      it "should increase reads counter" do
+        @redis.hget(@user_weekly_key, "reads").to_i.should eq @user_weekly_data["reads"].to_i + 1
       end
     end
   end

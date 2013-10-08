@@ -16,7 +16,7 @@ end
 local ok, err = red:evalsha(ngx.var.redis_script_hash, 1, "args", args_json)
 
 if ok then
-  ngx.say("OK!!! : ", ok)
+  ngx.exec('/_.gif')
   return
 end
 if err then

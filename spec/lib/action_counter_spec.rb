@@ -64,5 +64,29 @@ describe "ActionCounter" do
         @redis.hget(@user_weekly_key, "reads").to_i.should eq @user_weekly_data["reads"].to_i + 1
       end
     end
+
+    describe "get" do
+      ## Those specs are not really related to the 'Read Action', i'm just using the data from the specs above...
+      it "should return the data from redis for the post data" do
+        post_data = `curl "http://#{HOST}/get?key=#{@post_key}"`.strip
+        rslt = JSON.parse(post_data)
+        rslt.should be_a(Hash)
+        rslt.keys.should include("reads")
+      end
+
+      it "should return the data from redis for the reading user" do
+        post_data = `curl "http://#{HOST}/get?key=#{@user_key}"`.strip
+        rslt = JSON.parse(post_data)
+        rslt.should be_a(Hash)
+        rslt.keys.should include("reads")
+      end
+
+      it "should return the data from redis for the author user" do
+        post_data = `curl "http://#{HOST}/get?key=#{@author_key}"`.strip
+        rslt = JSON.parse(post_data)
+        rslt.should be_a(Hash)
+        rslt.keys.should include("been_read")
+      end
+    end
   end
 end

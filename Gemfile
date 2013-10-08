@@ -8,4 +8,5 @@ group :development, :test do
   gem 'redis'
   gem 'redis-rails'
   gem 'capistrano'
+  gem 'json'
 end

@@ -18,6 +18,12 @@ GEM
       i18n (~> 0.6)
       multi_json (~> 1.0)
     builder (3.0.4)
+    capistrano (2.15.5)
+      highline
+      net-scp (>= 1.0.0)
+      net-sftp (>= 2.0.0)
+      net-ssh (>= 2.0.14)
+      net-ssh-gateway (>= 1.1.0)
     coderay (1.0.9)
     diff-lcs (1.2.4)
     erubis (2.7.0)
@@ -32,6 +38,7 @@ GEM
     guard-rspec (2.5.0)
       guard (>= 1.1)
       rspec (~> 2.11)
+    highline (1.6.19)
     hike (1.2.1)
     i18n (0.6.4)
     journey (1.0.4)
@@ -42,6 +49,13 @@ GEM
     lumberjack (1.0.4)
     method_source (0.8.2)
     multi_json (1.6.1)
+    net-scp (1.1.2)
+      net-ssh (>= 2.6.5)
+    net-sftp (2.1.2)
+      net-ssh (>= 2.6.5)
+    net-ssh (2.7.0)
+    net-ssh-gateway (1.2.0)
+      net-ssh (>= 2.6.5)
     pry (0.9.12.2)
       coderay (~> 1.0.5)
       method_source (~> 0.8)
@@ -95,6 +109,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  capistrano
   guard
   guard-rspec
   redis

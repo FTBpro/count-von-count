@@ -7,4 +7,5 @@ group :development, :test do
   gem 'rspec'
   gem 'redis'
   gem 'redis-rails'
+  gem 'capistrano'
 end

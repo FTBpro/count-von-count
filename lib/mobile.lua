@@ -9,16 +9,10 @@ local red = redis:new()
 red:set_timeout(1000) -- 1 sec
 red:connect("127.0.0.1", 6379)
 
-ngx.say(args_json)
 local ok, err = red:evalsha(ngx.var.redis_mobile_hash, 1, "args", args_json)
-if ok then
-	ngx.say(ok)
-else
-	ngx.say(err)
-end
 
 if ok then red:set_keepalive(10000, 100) end
 
--- ngx.exec('/_.gif')
+ngx.exec('/_.gif')
 
 

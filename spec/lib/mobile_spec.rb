@@ -57,69 +57,52 @@ describe "Mobile" do
   end
 
 
-  describe "Push Notification Received" do
+  describe "Push Notification" do
     before :all do
-      @params[:action] = "pn_received"
-      @end_point = "http://#{HOST}/mobile?#{hash_to_query_string(@params)}"
+      @params[:action] = "pn"
     end
 
-    it "should increase by 1 the PN Received counter according to the device id, date, locale and team" do
-      key = "pn_received_#{@params[:locale]}_team_#{@params[:team_id]}_#{@date}"
-      value = @redis.get(key) || 0
-      `curl '#{@end_point}'`
-      @redis.get(key).to_i.should eq value.to_i + 1
+    describe "with valid pn_type parameter" do
+      before :all do
+        @params[:pn_type] = "received_post"
+        @end_point = "http://#{HOST}/mobile?#{hash_to_query_string(@params)}"
+      end
+
+      it "should increase by 1 the PN Received counter according to the device id, date, locale and team" do
+        key = "pn_#{@params[:pn_type]}_#{@params[:locale]}_team_#{@params[:team_id]}_#{@date}"
+        value = @redis.get(key) || 0
+        `curl '#{@end_point}'`
+        @redis.get(key).to_i.should eq value.to_i + 1
+      end
+
+      it "should increase by 1 the general PN Received counter according to the device id, date" do
+        key = "pn_#{@params[:pn_type]}_#{@date}"
+        value = @redis.get(key) || 0
+        `curl '#{@end_point}'`
+        @redis.get(key).to_i.should eq value.to_i + 1      
+      end
     end
 
-    it "should increase by 1 the general PN Received counter according to the device id, date" do
-      key = "pn_received_#{@date}"
-      value = @redis.get(key) || 0
-      `curl '#{@end_point}'`
-      @redis.get(key).to_i.should eq value.to_i + 1      
-    end
+    describe "with invalid pn_type parameter" do
+      before :all do
+        @params[:pn_type] = "bla"
+        @end_point = "http://#{HOST}/mobile?#{hash_to_query_string(@params)}"
+      end
+
+      it "should not increase by 1 the PN Received counter according to the device id, date, locale and team" do
+        key = "pn_#{@params[:pn_type]}_#{@params[:locale]}_team_#{@params[:team_id]}_#{@date}"
+        value = @redis.get(key) || 0
+        `curl '#{@end_point}'`
+        @redis.get(key).to_i.should eq value.to_i
+      end
+
+      it "should not increase by 1 the general PN Received counter according to the device id, date" do
+        key = "pn_#{@params[:pn_type]}_#{@date}"
+        value = @redis.get(key) || 0
+        `curl '#{@end_point}'`
+        @redis.get(key).to_i.should eq value.to_i
+      end
+    end    
   end
-
-
-  describe "Push Notification Clicked" do
-    before :all do
-      @params[:action] = "pn_clicked"
-      @end_point = "http://#{HOST}/mobile?#{hash_to_query_string(@params)}"
-    end
-
-    it "should increase by 1 the PN Received counter according to the device id, date, locale and team" do
-      key = "pn_clicked_#{@params[:locale]}_team_#{@params[:team_id]}_#{@date}"
-      value = @redis.get(key) || 0
-      `curl '#{@end_point}'`
-      @redis.get(key).to_i.should eq value.to_i + 1
-    end
-
-    it "should increase by 1 the general PN Received counter according to the device id, date" do
-      key = "pn_clicked_#{@date}"
-      value = @redis.get(key) || 0
-      `curl '#{@end_point}'`
-      @redis.get(key).to_i.should eq value.to_i + 1      
-    end
-  end
-
-
-  describe "Push Notification Opened" do
-    before :all do
-      @params[:action] = "pn_opened"
-      @end_point = "http://#{HOST}/mobile?#{hash_to_query_string(@params)}"
-    end
-
-    it "should increase by 1 the PN Received counter according to the device id, date, locale and team" do
-      key = "pn_opened_#{@params[:locale]}_team_#{@params[:team_id]}_#{@date}"
-      value = @redis.get(key) || 0
-      `curl '#{@end_point}'`
-      @redis.get(key).to_i.should eq value.to_i + 1
-    end
-
-    it "should increase by 1 the general PN Received counter according to the device id, date" do
-      key = "pn_opened_#{@date}"
-      value = @redis.get(key) || 0
-      `curl '#{@end_point}'`
-      @redis.get(key).to_i.should eq value.to_i + 1      
-    end
-  end  
 
 end

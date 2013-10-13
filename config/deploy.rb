@@ -92,7 +92,8 @@ namespace :deploy do
   desc "Load the lua script to redis and saving the SHA in a file for nginx to use"
   task :load_redis_lua do
     run "sudo rm -f #{nginx_dir}/conf/include/vars.conf"
-    run "sudo echo 'set \$redis_script_hash '$(redis-cli SCRIPT LOAD \"$(cat '#{deploy_to}/current/lib/redis_reads.lua')\")';' > #{nginx_dir}/conf/vars.conf"
+    run "sudo echo 'set \$redis_reads_hash '$(redis-cli SCRIPT LOAD \"$(cat '#{deploy_to}/current/lib/redis_reads.lua')\")';' > #{nginx_dir}/conf/vars.conf"
+    run "sudo echo 'set \$redis_mobile_hash '$(redis-cli SCRIPT LOAD \"$(cat '#{deploy_to}/current/lib/redis_mobile.lua')\")';' > #{nginx_dir}/conf/vars.conf"
   end
 
   task :restart do

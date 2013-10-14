@@ -1,4 +1,16 @@
 ------------------- User Class --------------------------------
+local ACTION_POINTS = {
+  reads = 2,
+  reads_got = 1,
+  comments = 50,
+  comments_got = 100,
+  shares = 30,
+  likes = 30,
+  tweets = 30,
+  shares_got = 50,
+  likes_got = 50,
+  tweets_got = 50 
+}
 local User = {}
 
 function User:new(_id)
@@ -9,10 +21,19 @@ end
 
 function User:action(action)
   redis.call("HINCRBY", self.redis_key, action, 1)
+  -- self:addPoints(action)
 end
 
 function User:gotAction(action)
   redis.call("HINCRBY", self.redis_key, action .. "_got", 1)
+  -- self:addPoints(action)
+end
+
+function User:addPoints(action)
+  local points = ACTION_POINTS[action]
+  if points then 
+    redis.call("HINCRBY", self.redis_key, "points", points)
+  end
 end
 
 
@@ -52,7 +73,7 @@ if action == "reads" then
   userWeekly:read()
 end
 
-if action == "reads" or action == "comments" or action == "shares" then
+if action == "reads" or action == "comments" or action == "shares" or action == "likes" or action == "tweets" then
   local author = User:new(params["author_id"])
   author:gotAction(action)
 

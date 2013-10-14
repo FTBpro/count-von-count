@@ -1,0 +1,114 @@
+---
+reads:
+  User:
+    - id: user_id
+      action: default
+
+    - id: author_id
+      action: got
+
+  Post:
+    - id: post_id
+      action: default
+
+  UserWeekly:
+    - id:
+        - user_id
+        - week_index
+      action: default
+
+comments:
+  User:
+    - id: user_id
+      action: default
+
+    - id: author_id
+      action: got
+      
+  Post:
+    - id: post_id
+      action: default
+
+
+# User:
+# 	reads:
+# 		id: user_id
+# 		got: author_id
+# 	comments:
+# 		id: user_id
+# 		got: author_id
+# 	shares:
+# 		id: user_id
+# 		got: author_id
+# 	follow:
+# 		id: user_id
+
+# Post:
+# 	reads:
+# 		id: post_id
+# 	comments:
+# 		id: post_id
+# 	shares: 
+# 		id: post_id
+
+# UserWeekly:
+# 	reads:
+# 		id: 
+# 			- user_id
+# 			- week_index	
+
+
+# # -------------------------------------------------------
+
+# User:
+# 	events:
+# 		type:
+# 			- reads
+# 			- comments
+# 			- shares
+# 		id: user_id
+# 		got: author_id
+
+
+# Post:
+# 	events:
+# 		type:
+# 			- reads
+# 			- comments
+# 			- shares
+# 		id: post_id
+
+
+# UserWeekly:
+# 	events:
+# 		type:
+# 			- reads
+# 		id:
+# 			- user_id
+# 			- week_index
+
+# # -------------------------------------------------------
+
+# reads:
+# 	User:
+# 		- id: user_id
+#     	  action: default
+#   		- id: author_id
+#     	  action: got
+#   	Post:
+# 		- id: post_id
+# 		  action: default
+# 	UserWeekly:
+# 		- id:
+# 		  	- user_id
+# 		  	- week_index
+# 		  action: default
+# comments:
+#  	User:
+#   		- id: user_id
+#     	  action: default
+#   		- id: author_id
+# 	      action: got
+#   	Post:
+#   		- id: post_id
+#     	  action: default

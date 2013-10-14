@@ -7,13 +7,14 @@ function User:new(_id)
   return setmetatable(newUser, self)
 end
 
-function User:read()
-	redis.call("HINCRBY", self.redis_key, "reads", 1)
+function User:action(action)
+  redis.call("HINCRBY", self.redis_key, action, 1)
 end
 
-function User:gotRead()
-	redis.call("HINCRBY", self.redis_key, "been_read", 1)
+function User:gotAction(action)
+  redis.call("HINCRBY", self.redis_key, action .. "_got", 1)
 end
+
 
 ------------------- Post Class --------------------------------
 local Post = {}
@@ -24,8 +25,8 @@ function Post:new(_id)
   return setmetatable(newPost, self)
 end
 
-function Post:read()
-  redis.call("HINCRBY", self.redis_key, "reads", 1)
+function Post:action(action)
+  redis.call("HINCRBY", self.redis_key, action, 1)
 end
 
 ------------------- UserWeekly Class --------------------------------
@@ -43,16 +44,21 @@ end
 
 ----------------------------------------------------------------
 local params = cjson.decode(ARGV[1])
+local action = params["action"]
 
-local author = User:new(params["author_id"])
-author:gotRead()
+if action == "reads" then
+  local weekIndex = params["week_index"]
+  local userWeekly = UserWeekly:new(params["author_id"], weekIndex)
+  userWeekly:read()
+end
 
-local user = User:new(params["user_id"])
-user:read()
+if action == "reads" or action == "comments" or action == "shares" then
+  local author = User:new(params["author_id"])
+  author:gotAction(action)
 
-local post = Post:new(params["post_id"])
-post:read()
-local weekIndex = params["week_index"]
+  local user = User:new(params["user_id"])
+  user:action(action)
 
-local userWeekly = UserWeekly:new(params["user_id"], weekIndex)
-userWeekly:read()
+  local post = Post:new(params["post_id"])
+  post:action(action)  
+end  

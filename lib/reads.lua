@@ -1,4 +1,5 @@
 local args = ngx.req.get_uri_args()
+args["action"] = ngx.var.action
 args["week_index"] = os.date("%W",ngx.req.start_time())
 local cjson = require "cjson"
 local args_json = cjson.encode(args)

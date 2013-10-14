@@ -12,7 +12,7 @@ end
 function initRedis()
   local redis = require "resty.redis"
   local red = redis:new()
-  red:set_timeout(1000) -- 1 sec
+  red:set_timeout(3000) -- 3 sec
   local ok, err = red:connect("127.0.0.1", 6379)
   if not ok then logErrorAndExit("Error connecting to redis: ".. err) end
   return red

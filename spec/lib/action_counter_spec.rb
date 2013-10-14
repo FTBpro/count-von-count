@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'script_loader'
+require 'open-uri'
 describe "ActionCounter" do
   HOST = "127.0.0.1"
   before :all do
@@ -38,7 +39,7 @@ describe "ActionCounter" do
     end
 
     before :all do
-      `curl "http://#{HOST}/reads?post_id=#{@post_id}&user_id=#{@user_id}&author_id=#{@author_id}"`
+      open("http://#{HOST}/reads?post_id=#{@post_id}&user_id=#{@user_id}&author_id=#{@author_id}")
     end
 
     describe "User" do
@@ -68,21 +69,21 @@ describe "ActionCounter" do
     describe "get" do
       ## Those specs are not really related to the 'Read Action', i'm just using the data from the specs above...
       it "should return the data from redis for the post data" do
-        post_data = `curl "http://#{HOST}/get?key=#{@post_key}"`.strip
+        post_data = URI.parse("http://#{HOST}/get?key=#{@post_key}").read
         rslt = JSON.parse(post_data)
         rslt.should be_a(Hash)
         rslt.keys.should include("reads")
       end
 
       it "should return the data from redis for the reading user" do
-        post_data = `curl "http://#{HOST}/get?key=#{@user_key}"`.strip
+        post_data = URI.parse("http://#{HOST}/get?key=#{@user_key}").read
         rslt = JSON.parse(post_data)
         rslt.should be_a(Hash)
         rslt.keys.should include("reads")
       end
 
       it "should return the data from redis for the author user" do
-        post_data = `curl "http://#{HOST}/get?key=#{@author_key}"`.strip
+        post_data = URI.parse("http://#{HOST}/get?key=#{@author_key}").read
         rslt = JSON.parse(post_data)
         rslt.should be_a(Hash)
         rslt.keys.should include("been_read")

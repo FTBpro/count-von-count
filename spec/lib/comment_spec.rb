@@ -3,9 +3,9 @@ require 'script_loader'
 describe "ActionCounter" do
   describe "Comment Action" do
     before :all do
-      @user = create :user
-      @author = create :user
-      @post = create :post
+      @user = create :User
+      @author = create :User
+      @post = create :Post
     end
 
     before :all do

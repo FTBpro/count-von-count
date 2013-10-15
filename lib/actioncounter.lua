@@ -1,13 +1,13 @@
 -------------- Function to simulate inheritance -------------------------------------
-function inheritsFrom( baseClass )
-   local new_class = {}
-    local class_mt = { __index = new_class }
+local function inheritsFrom( baseClass )
+  local new_class = {}
+  local class_mt = { __index = new_class }
 
-    if baseClass then
-        setmetatable( new_class, { __index = baseClass } )
-    end
+  if baseClass then
+    setmetatable( new_class, { __index = baseClass } )
+  end
 
-    return new_class
+  return new_class
 end
 
 -------------- Base Class  ---------------------------------------------------------
@@ -43,7 +43,7 @@ end
 
 ------------ Declaration of all Classes -------------------------------
 
-local classes = { Base = Base, UserWeekly = UserWeekly }
+local classes = { Base = Base }
 
 -- local action = "reads"
 -- local config = { reads = { User = { { id = "user_id", action = "default" }, { id = "author_id", action = "got" } }, UserWeekly = { { id = { "user_id", "week_index" }, action = "default" } } } }
@@ -52,7 +52,7 @@ local classes = { Base = Base, UserWeekly = UserWeekly }
 
 
 -- return an array with all the values in tbl that match the given keys array
-function getValueByKeys(tbl, keys)
+local function getValueByKeys(tbl, keys)
   local values = {}
   if type(keys) == "table" then
     for i, key in ipairs(keys) do

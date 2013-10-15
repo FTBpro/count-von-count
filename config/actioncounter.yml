@@ -30,6 +30,31 @@ comments:
       action: default
 
 
+shares:
+  User:
+    - id: user_id
+      action: default
+
+    - id: author_id
+      action: got
+
+  Post:
+    - id: post_id
+      action: default
+
+
+tweets:
+  User:
+    - id: user_id
+      action: default
+
+    - id: author_id
+      action: got
+
+  Post:
+    - id: post_id
+      action: got
+
 # User:
 # 	reads:
 # 		id: user_id

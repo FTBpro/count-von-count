@@ -3,9 +3,9 @@ require 'script_loader'
 describe "ActionCounter" do
 
   before :all do
-    @user = create :user
-    @author = create :user
-    @post = create :post
+    @user = create :User
+    @author = create :User
+    @post = create :Post
   end       
 
   describe "Share Action" do

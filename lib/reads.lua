@@ -19,6 +19,7 @@ function initRedis()
 end
 
 ---------------------
+ngx.header["Cache-Control"] = "no-cache"
 
 local args = ngx.req.get_uri_args()
 args["week_index"] = os.date("%W",ngx.req.start_time())

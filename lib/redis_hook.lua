@@ -34,8 +34,7 @@ red = initRedis()
 
 ok, err = red:evalsha(ngx.var.redis_counter_hash, 2, "args", "config", args_json, ngx.var.config)
 if not ok then logErrorAndExit("Error evaluating redis script: ".. err) end
-ngx.say(ok)
 
 ok, err = red:set_keepalive(10000, 100)
 if not ok then ngx.log(ngx.ERR, "Error setting redis keep alive ".. err) end
--- emptyGif()
+emptyGif()

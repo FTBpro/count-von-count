@@ -53,32 +53,24 @@ describe "Read Action" do
   describe "LeagueWeekly" do
     it "should increase the post's read count for the given league and the current week and year" do
       @league_weekly.data["post_#{@post.id}"].to_i.should eq @league_weekly.initial_data["post_#{@post.id}"].to_i + 1
-      # open("http://#{HOST}/reads?post=#{@post.id}&user=#{rand(100)}&author=#{rand(100)}&league=#{@league_weekly.ids[:league]}&team=#{rand(20)}")
-      # @league_weekly.data["post_#{@post.id}"].to_i.should eq @league_weekly.initial_data["post_#{@post.id}"].to_i + 2
     end
   end
 
   describe "LeagueMonthly" do
     it "should increase the post's read count for the given league and the current month and year" do
       @league_monthly.data["post_#{@post.id}"].to_i.should eq @league_monthly.initial_data["post_#{@post.id}"].to_i + 1
-      # open("http://#{HOST}/reads?post=#{@post.id}&user=#{rand(100)}&author=#{rand(100)}&league=#{@league_weekly.ids[:league]}&team=#{rand(20)}")
-      # @league_monthly.data["post_#{@post.id}"].to_i.should eq @league_monthly.initial_data["post_#{@post.id}"].to_i + 2
     end
   end  
 
   describe "TeamWeekly" do
     it "should increase the post's read count for the given team and the current week and year" do
       @team_weekly.data["post_#{@post.id}"].to_i.should eq @team_weekly.initial_data["post_#{@post.id}"].to_i + 1
-      # open("http://#{HOST}/reads?post=#{@post.id}&user=#{rand(100)}&author=#{rand(100)}&league=#{rand(10)}&team=#{@team_weekly.ids[:team]}")
-      # @team_weekly.data["post_#{@post.id}"].to_i.should eq @team_weekly.initial_data["post_#{@post.id}"].to_i + 2
     end
   end
 
   describe "TeamMonthly" do
     it "should increase the post's read count for the given league and the current month and year" do
       @team_monthly.data["post_#{@post.id}"].to_i.should eq @team_monthly.initial_data["post_#{@post.id}"].to_i + 1
-      # open("http://#{HOST}/reads?post=#{@post.id}&user=#{rand(100)}&author=#{rand(100)}&league=#{rand(10)}&team=#{@team_weekly.ids[:team]}")
-      # @team_monthly.data["post_#{@post.id}"].to_i.should eq @team_monthly.initial_data["post_#{@post.id}"].to_i + 2
     end
   end  
 

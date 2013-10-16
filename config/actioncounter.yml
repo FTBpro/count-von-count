@@ -1,0 +1,89 @@
+---
+reads:
+  User:
+    - id: user
+
+    - id: author
+      count: reads_got
+
+  Post:
+    - id: post
+
+  UserWeekly:
+    - id:
+        - author
+        - week
+        - year
+
+  LeagueWeekly:
+    - id:
+        - league
+        - week
+        - year
+      count: post_{post}
+
+  LeagueMonthly:
+    - id:
+        - league
+        - month
+        - year
+      count: post_{post}
+
+  TeamWeekly:
+    - id:
+        - team
+        - week
+        - year
+      count: post_{post}
+
+  TeamMonthly:
+    - id:
+        - team
+        - month
+        - year
+      count: post_{post}
+
+
+comments:
+  User:
+    - id: user
+
+    - id: author
+      count: comments_got
+      
+  Post:
+    - id: post
+
+
+shares:
+  User:
+    - id: user
+
+    - id: author
+      count: shares_got
+
+  Post:
+    - id: post
+
+
+tweets:
+  User:
+    - id: user
+
+    - id: author
+      count: tweets_got
+
+  Post:
+    - id: post
+
+
+likes:
+  User:
+    - id: user
+
+    - id: author
+      count: likes_got
+
+  Post:
+    - id: post
+

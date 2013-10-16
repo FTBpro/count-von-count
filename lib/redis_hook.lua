@@ -22,13 +22,17 @@ end
 ngx.header["Cache-Control"] = "no-cache"
 
 local args = ngx.req.get_uri_args()
-args["week_index"] = os.date("%W",ngx.req.start_time())
+args["action"] = ngx.var.action
+args["day"] = os.date("%d", ngx.req.start_time())
+args["week"] = os.date("%W",ngx.req.start_time())
+args["month"] = os.date("%m", ngx.req.start_time())
+args["year"] = os.date("%Y",ngx.req.start_time())
 local cjson = require "cjson"
 local args_json = cjson.encode(args)
 
 red = initRedis()
 
-ok, err = red:evalsha(ngx.var.redis_reads_hash, 1, "args", args_json)
+ok, err = red:evalsha(ngx.var.redis_counter_hash, 2, "args", "config", args_json, ngx.var.config)
 if not ok then logErrorAndExit("Error evaluating redis script: ".. err) end
 
 ok, err = red:set_keepalive(10000, 100)

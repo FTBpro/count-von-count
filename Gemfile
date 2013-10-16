@@ -9,4 +9,5 @@ group :development, :test do
   gem 'redis-rails'
   gem 'capistrano'
   gem 'json'
+  gem 'debugger'
 end

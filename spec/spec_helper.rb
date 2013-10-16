@@ -1,3 +1,4 @@
+require 'open-uri'
 require 'script_loader'
 require 'rubygems'
 require 'spork'
@@ -58,7 +59,8 @@ $redis = Redis.new(host: HOST, port: "6379")
 $redis.flushdb
 RedisObjectFactory.redis = $redis
 
-def create(type)
-  RedisObjectFactory.new(type, rand(1000000))
+def create(type, ids = nil)
+  ids ||= { id: rand(1000000) }
+  RedisObjectFactory.new(type, ids)
 end
 

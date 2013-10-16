@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'script_loader'
+
 describe "ActionCounter" do
   describe "Comment Action" do
     before :all do
@@ -9,8 +9,7 @@ describe "ActionCounter" do
     end
 
     before :all do
-      puts "http://#{HOST}/comments?user_id=#{@user.id}&author_id=#{@author.id}"
-      puts `curl "http://#{HOST}/comments?user_id=#{@user.id}&author_id=#{@author.id}&post_id=#{@post.id}"`
+      open("http://#{HOST}/comments?user=#{@user.id}&author=#{@author.id}&post=#{@post.id}")
     end
 
     it "should increase the user's num of comments by 1" do

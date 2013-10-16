@@ -1,3 +1,5 @@
+require 'yaml'
+require 'json'
 class ScriptLoader
   def self.load
     reads_hash = `redis-cli SCRIPT LOAD "$(cat "lib/actioncounter.lua")"`.strip
@@ -13,3 +15,5 @@ class ScriptLoader
     sleep 1
   end
 end
+
+# ScriptLoader.load

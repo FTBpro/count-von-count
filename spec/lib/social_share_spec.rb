@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'script_loader'
 describe "ActionCounter" do
 
   before :all do
@@ -10,7 +9,7 @@ describe "ActionCounter" do
 
   describe "Share Action" do
     before :all do
-      `curl "http://#{HOST}/shares?user_id=#{@user.id}&author_id=#{@author.id}&post_id=#{@post.id}"`
+      open("http://#{HOST}/shares?user=#{@user.id}&author=#{@author.id}&post=#{@post.id}")
     end
 
     it "should increase the user's num of shares by 1" do
@@ -28,7 +27,7 @@ describe "ActionCounter" do
 
   describe "Like Action" do
     before :all do
-      `curl "http://#{HOST}/likes?user_id=#{@user.id}&author_id=#{@author.id}&post_id=#{@post.id}"`
+      open("http://#{HOST}/likes?user=#{@user.id}&author=#{@author.id}&post=#{@post.id}")
     end
 
     it "should increase the user's num of likes by 1" do
@@ -46,7 +45,7 @@ describe "ActionCounter" do
 
   describe "Tweet Action" do
     before :all do
-      `curl "http://#{HOST}/tweets?user_id=#{@user.id}&author_id=#{@author.id}&post_id=#{@post.id}"`
+      open("http://#{HOST}/tweets?user=#{@user.id}&author=#{@author.id}&post=#{@post.id}")
     end
 
     it "should increase the user's num of likes by 1" do

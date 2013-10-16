@@ -25,6 +25,13 @@ GEM
       net-ssh (>= 2.0.14)
       net-ssh-gateway (>= 1.1.0)
     coderay (1.0.9)
+    columnize (0.3.6)
+    debugger (1.6.2)
+      columnize (>= 0.3.1)
+      debugger-linecache (~> 1.2.0)
+      debugger-ruby_core_source (~> 1.2.3)
+    debugger-linecache (1.2.0)
+    debugger-ruby_core_source (1.2.3)
     diff-lcs (1.2.4)
     erubis (2.7.0)
     ffi (1.9.0)
@@ -111,6 +118,7 @@ PLATFORMS
 
 DEPENDENCIES
   capistrano
+  debugger
   guard
   guard-rspec
   json

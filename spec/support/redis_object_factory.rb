@@ -1,13 +1,14 @@
 class RedisObjectFactory
-  attr_reader :type, :key, :id
+  attr_reader :type, :key, :ids, :id
 
   class << self
     attr_accessor :redis  
   end
 
-  def initialize(type_, id_)
+  def initialize(type_, ids_)
     @type = type_
-    @id = id_
+    @ids = ids_
+    @id = @ids.values.join("_")
     @key = "#{@type}_#{@id}"
     initial_data
   end

@@ -6,6 +6,7 @@ describe "ActionCounter" do
       @user = create :User
       @author = create :User
       @post = create :Post
+      @user_weekly = create :UserWeekly, { user: @author.id, week: Time.now.strftime("%W"), year: Time.now.strftime("%Y") }
     end
 
     before :all do
@@ -22,6 +23,14 @@ describe "ActionCounter" do
 
     it "should increase the post's num of comments" do
       @post.data["comments"].to_i.should eq @post.initial_data["comments"].to_i + 1
+    end
+
+    it "should increase the author's UserWeekly comments count" do
+      @user_weekly.data["comments"].to_i.should eq @user_weekly.initial_data["comments"].to_i + 1
+    end
+
+    it "author num of comments he got should be equal to the number of comments in his user weekly (assuming there is no data for those objects in the DB before this specs run)" do
+      @author.data["comments_got"].should eq @user_weekly.data["comments"]
     end
   end
 end

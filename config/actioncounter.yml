@@ -18,6 +18,7 @@ reads:
   LeagueWeekly:
     - id:
         - league
+        - locale
         - week
         - year
       count: post_{post}
@@ -25,6 +26,7 @@ reads:
   LeagueMonthly:
     - id:
         - league
+        - locale
         - month
         - year
       count: post_{post}
@@ -32,6 +34,7 @@ reads:
   TeamWeekly:
     - id:
         - team
+        - locale
         - week
         - year
       count: post_{post}
@@ -39,10 +42,38 @@ reads:
   TeamMonthly:
     - id:
         - team
+        - locale
         - month
         - year
       count: post_{post}
 
+  LeagueWeeklyLeaderboard:
+    - id: 
+        - league
+        - week
+        - year
+      count: user_{author}
+
+  LeagueMonthlyLeaderboard:
+    - id: 
+        - league
+        - month
+        - year
+      count: user_{author}
+
+  TeamWeeklyLeaderboard:
+    - id: 
+        - team
+        - week
+        - year
+      count: user_{author}
+
+  TeamMonthlyLeaderboard:
+    - id: 
+        - team
+        - month
+        - year
+      count: user_{author}
 
 comments:
   User:
@@ -50,10 +81,15 @@ comments:
 
     - id: author
       count: comments_got
-      
+
   Post:
     - id: post
 
+  UserWeekly:
+    - id:
+        - author
+        - week
+        - year
 
 shares:
   User:
@@ -65,6 +101,11 @@ shares:
   Post:
     - id: post
 
+  UserWeekly:
+    - id:
+        - author
+        - week
+        - year
 
 tweets:
   User:
@@ -76,6 +117,11 @@ tweets:
   Post:
     - id: post
 
+  UserWeekly:
+    - id:
+        - author
+        - week
+        - year
 
 likes:
   User:
@@ -87,3 +133,84 @@ likes:
   Post:
     - id: post
 
+  UserWeekly:
+    - id:
+        - author
+        - week
+        - year
+
+gplus:
+  User:
+    - id: user
+
+    - id: author
+      count: gplus_got
+
+  Post:
+    - id: post
+
+  UserWeekly:
+    - id:
+        - author
+        - week
+        - year
+
+logins: 
+  User:
+    - id: user
+
+
+follow:
+  User:
+    - id: user
+
+    - id: user
+      count: follow_actions_total
+
+    - id: other_user
+      count: followers
+
+    - id: other_user
+      count: followers_actions_total
+
+unfollow:
+  User:
+    - id: user
+      count: follow
+      change: -1
+
+    - id: other_user
+      count: followers
+      change: -1
+
+votes_mwp:
+  User:
+    - id: user
+
+
+post_create:
+  User:
+    - id: user
+
+  UserWeekly:
+    - id:
+        - user
+        - week
+        - year
+
+
+feature:
+  User:
+    - id: user
+      count: feature_{channel}
+
+
+reactions:
+  User:
+    - id: user
+
+    - id: author
+      count: reactions_got
+
+  Post:
+    - id: post

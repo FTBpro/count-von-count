@@ -94,7 +94,7 @@ namespace :deploy do
     run "sudo rm -f #{nginx_dir}/conf/include/vars.conf"
     run "sudo echo 'set \$redis_counter_hash '$(redis-cli SCRIPT LOAD \"$(cat '#{deploy_to}/current/lib/actioncounter.lua')\")';' > #{nginx_dir}/conf/vars.conf"
     run "sudo echo 'set \$redis_mobile_hash '$(redis-cli SCRIPT LOAD \"$(cat '#{deploy_to}/current/lib/redis_mobile.lua')\")';' >> #{nginx_dir}/conf/vars.conf"
-    run "sudo echo \"set \$config '$(cat '#{deploy_to}/current/config/actioncounter.config' | tr -d '\n' | tr -d ' ')';\" >> #{nginx_dir}/conf/vars.conf"
+    run "sudo echo \"set \\$config '$(cat '#{deploy_to}/current/config/actioncounter.config' | tr -d '\n' | tr -d ' ')';\" >> #{nginx_dir}/conf/vars.conf"
   end
 
   task :restart do

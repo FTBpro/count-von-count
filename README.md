@@ -14,10 +14,11 @@ Setting up a server (Ubuntu 13)
 
 
 
-
 Deployment
 -----------------
 You can use the provided Capistrano deployment (assuming you have Ruby installed).
 Edit deploy.rb file and set the correct deploy user and your server,
 then run "cap deploy:setup" for the first time, to bootstrap the server (instead of manually doing steps 4-8 above).
 use "cap deploy" for deployment :-)
+
+

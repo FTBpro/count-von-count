@@ -36,7 +36,7 @@ set :use_sudo, false
 set :nginx_dir, "/usr/local/openresty/nginx"
 # set(:rails_env) { stage }
 
-server "54.214.47.91", :app, :web, :db
+server "54.212.253.88", :app, :web, :db
 
 after 'deploy:setup', 'nginx:folder_permissions', 'symlink:app', 'symlink:conf', 'redis:start', 'nginx:start'
 before 'deploy:restart', 'deploy:load_redis_lua'
@@ -92,7 +92,7 @@ namespace :deploy do
   desc "Load the lua script to redis and saving the SHA in a file for nginx to use"
   task :load_redis_lua do
     run "sudo rm -f #{nginx_dir}/conf/include/vars.conf"
-    run "sudo echo 'set \$redis_reads_hash '$(redis-cli SCRIPT LOAD \"$(cat '#{deploy_to}/current/lib/redis_reads.lua')\")';' > #{nginx_dir}/conf/vars.conf"
+    run "sudo echo 'set \$redis_reads_hash '$(redis-cli SCRIPT LOAD \"$(cat '#{deploy_to}/current/lib/actioncounter.lua')\")';' > #{nginx_dir}/conf/vars.conf"
     run "sudo echo 'set \$redis_mobile_hash '$(redis-cli SCRIPT LOAD \"$(cat '#{deploy_to}/current/lib/redis_mobile.lua')\")';' >> #{nginx_dir}/conf/vars.conf"
   end
 

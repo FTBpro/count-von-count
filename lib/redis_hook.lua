@@ -24,7 +24,9 @@ ngx.header["Cache-Control"] = "no-cache"
 local args = ngx.req.get_uri_args()
 args["action"] = ngx.var.action
 args["day"] = os.date("%d", ngx.req.start_time())
-args["week"] = os.date("%W",ngx.req.start_time())
+week = os.date("%W",ngx.req.start_time())
+if week == "00" then week = "52" end
+args["week"] = week
 args["month"] = os.date("%m", ngx.req.start_time())
 args["year"] = os.date("%Y",ngx.req.start_time())
 local cjson = require "cjson"

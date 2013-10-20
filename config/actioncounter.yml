@@ -75,6 +75,13 @@ reads:
         - year
       count: user_{author}
 
+  UserWeeklyDemographics:
+    - id:
+        - author
+        - week
+        - year
+      count: {country}
+
 comments:
   User:
     - id: user

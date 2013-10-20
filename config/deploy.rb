@@ -1,3 +1,5 @@
+require 'capistrano/ext/multistage'
+
 # set :application, "set your application name here"
 # set :repository,  "set your repository location here"
 
@@ -34,9 +36,11 @@ set :deploy_to, '/home/deploy/action-counter'
 set :user, "deploy"
 set :use_sudo, false
 set :nginx_dir, "/usr/local/openresty/nginx"
-# set(:rails_env) { stage }
+set :stages, %w(production testo)
 
-server "54.212.253.88", :app, :web, :db
+# set(:rails_env) { stage }
+env_servers = { testo: "54.212.253.88", production: "54.214.47.91" }
+server env_servers[:stage], :app, :web, :db
 
 after 'deploy:setup', 'nginx:folder_permissions', 'symlink:app', 'symlink:conf', 'redis:start', 'nginx:start'
 before 'deploy:restart', 'deploy:load_redis_lua'

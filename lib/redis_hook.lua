@@ -1,4 +1,8 @@
 -- Helper Methods
+function getCountry()
+  local country = geodb:query_by_addr(ngx.var.remote_addr, "id")
+  return geoip.name_by_id(country)
+end
 
 function emptyGif()
   ngx.exec('/_.gif')
@@ -27,6 +31,7 @@ args["day"] = os.date("%d", ngx.req.start_time())
 args["week"] = os.date("%W",ngx.req.start_time())
 args["month"] = os.date("%m", ngx.req.start_time())
 args["year"] = os.date("%Y",ngx.req.start_time())
+args["country"] = getCountry()
 local cjson = require "cjson"
 local args_json = cjson.encode(args)
 

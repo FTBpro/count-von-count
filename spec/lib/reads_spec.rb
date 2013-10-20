@@ -22,9 +22,11 @@ describe "Read Action" do
     @week = Time.now.strftime("%W")
     @year = Time.now.strftime("%Y")
     @user_weekly_key = "UserWeekly_#{@user_id}_#{@week}_#{@year}"
-    puts @user_weekly_key
+    @user_weekly_demographics_key = "UserWeeklyDemographics_#{@user_id}_#{@week}_#{@year}"
     @user_weekly_data = Hash.new(0)
     @user_weekly_data.merge!($redis.hgetall @user_weekly_key)
+    @user_weekly_demographics_data = Hash.new(0)
+    @user_weekly_demographics_data.merge!($redis.hgetall @user_weekly_demographics_key)
   end
 
   before :all do
@@ -55,6 +57,12 @@ describe "Read Action" do
     end
   end
 
+   describe "UserWeeklyDemographics" do
+    it "should increase reads counter" do
+      $redis.hget(@user_weekly_demographics_key, "N/A").to_i.should eq @user_weekly_demographics_data["N/A"].to_i + 1
+    end
+  end
+
   describe "LeagueWeekly" do
     it "should increase the post's read count for the given league and the current week and year" do
       @league_weekly.data["post_#{@post.id}"].to_i.should eq @league_weekly.initial_data["post_#{@post.id}"].to_i + 1
@@ -65,7 +73,7 @@ describe "Read Action" do
     it "should increase the post's read count for the given league and the current month and year" do
       @league_monthly.data["post_#{@post.id}"].to_i.should eq @league_monthly.initial_data["post_#{@post.id}"].to_i + 1
     end
-  end  
+  end
 
   describe "TeamWeekly" do
     it "should increase the post's read count for the given team and the current week and year" do
@@ -77,7 +85,7 @@ describe "Read Action" do
     it "should increase the post's read count for the given league and the current month and year" do
       @team_monthly.data["post_#{@post.id}"].to_i.should eq @team_monthly.initial_data["post_#{@post.id}"].to_i + 1
     end
-  end  
+  end
 
   describe "LeagueWeeklyLeaderboard" do
     it "should increase the author's reads count in the leaderboard for the given league and current week and year" do

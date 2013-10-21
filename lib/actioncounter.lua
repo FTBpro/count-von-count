@@ -25,8 +25,12 @@ function Base:new(_type, ids)
 end
 
 
-function Base:count(key, num)
+function Base:hash_count(key, num)
   redis.call("HINCRBY", self.redis_key, key, num)
+end
+
+function Base:set_count(key, num)
+  redis.call("ZINCRBY", self.redis_key, num, key)
 end
 
 ------------- Helper Methods ------------------------
@@ -49,7 +53,7 @@ local function addValuesToKey(tbl, key)
   local rslt = key
   local match = rslt:match("{%w*}")
   while match do
-    local subStr = tbl[match:sub(2, -2)] 
+    local subStr = tbl[match:sub(2, -2)]
     rslt = rslt:gsub(match, subStr)
     match = rslt:match("{%w*}")
   end
@@ -61,19 +65,24 @@ end
 local params = cjson.decode(ARGV[1])
 local config = cjson.decode(ARGV[2])
 local action = params["action"]
-local defaultMethod = { count = action, change = 1 }
+local defaultMethod = { hash_count = action, change = 1 }
 
 local action_config = config[action]
 if action_config then
   for obj_type, methods in pairs(action_config) do
     for i, defs in ipairs(methods) do
       setmetatable(defs, { __index = defaultMethod })
+      local count_action = "hash_count"
+      if defs["set_count"] then
+        count_action = "set_count"
+      end
+
       local ids = getValueByKeys(params, defs["id"])
-      local key = addValuesToKey(params, defs["count"])
+      local key = addValuesToKey(params, defs[count_action])
       local change = defs["change"]
-      
-      local obj = Base:new(obj_type, ids)   
-      obj:count(key, change)
+
+      local obj = Base:new(obj_type, ids)
+      obj[count_action](obj, key, change)
     end
   end
 end

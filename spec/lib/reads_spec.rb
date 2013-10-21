@@ -89,25 +89,25 @@ describe "Read Action" do
 
   describe "LeagueWeeklyLeaderboard" do
     it "should increase the author's reads count in the leaderboard for the given league and current week and year" do
-      @league_weekly_leaderboard.data["user_#{@author.id}"].to_i.should eq @league_weekly_leaderboard.initial_data["user_#{@author.id}"].to_i + 1
+      @league_weekly_leaderboard.set["user_#{@author.id}"].to_i.should eq @league_weekly_leaderboard.initial_set["user_#{@author.id}"].to_i + 1
     end
   end
 
   describe "LeagueMontlyLeaderboard" do
     it "should increase the author's reads count in the leaderboard for the given league and current month and year" do
-      @league_monthly_leaderboard.data["user_#{@author.id}"].to_i.should eq @league_monthly_leaderboard.initial_data["user_#{@author.id}"].to_i + 1
+      @league_monthly_leaderboard.set["user_#{@author.id}"].to_i.should eq @league_monthly_leaderboard.initial_set["user_#{@author.id}"].to_i + 1
     end
   end
 
   describe "TeamWeeklyLeaderboard" do
     it "should increase the author's reads count in the leaderboard for the given team and current week and year" do
-      @team_weekly_leaderboard.data["user_#{@author.id}"].to_i.should eq @team_weekly_leaderboard.initial_data["user_#{@author.id}"].to_i + 1
+      @team_weekly_leaderboard.set["user_#{@author.id}"].to_i.should eq @team_weekly_leaderboard.initial_set["user_#{@author.id}"].to_i + 1
     end
   end
 
   describe "TeamMontlyLeaderboard" do
     it "should increase the author's reads count in the leaderboard for the given team and current month and year" do
-      @team_monthly_leaderboard.data["user_#{@author.id}"].to_i.should eq @team_monthly_leaderboard.initial_data["user_#{@author.id}"].to_i + 1
+      @team_monthly_leaderboard.set["user_#{@author.id}"].to_i.should eq @team_monthly_leaderboard.initial_set["user_#{@author.id}"].to_i + 1
     end
   end
 

@@ -4,6 +4,15 @@ function getCountry()
   return geoip.name_by_id(country)
 end
 
+function normalizeKeys(tbl)
+  local normalized = {}
+  for k, v in pairs(tbl) do
+    local key = k:gsub("amp;", "")
+    normalized[key] = v
+  end
+  return normalized
+end
+
 function emptyGif()
   ngx.exec('/_.gif')
 end
@@ -25,7 +34,7 @@ end
 ---------------------
 ngx.header["Cache-Control"] = "no-cache"
 
-local args = ngx.req.get_uri_args()
+local args = normalizeKeys(ngx.req.get_uri_args())
 args["action"] = ngx.var.action
 args["day"] = os.date("%d", ngx.req.start_time())
 week = os.date("%W",ngx.req.start_time())

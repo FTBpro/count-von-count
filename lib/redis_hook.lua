@@ -37,12 +37,14 @@ ngx.header["Cache-Control"] = "no-cache"
 local args = normalizeKeys(ngx.req.get_uri_args())
 args["action"] = ngx.var.action
 args["day"] = os.date("%d", ngx.req.start_time())
-week = os.date("%W",ngx.req.start_time())
-if week == "00" then week = "52" end
-args["week"] = week
+args["week"] = os.date("%W",ngx.req.start_time())
 args["month"] = os.date("%m", ngx.req.start_time())
 args["year"] = os.date("%Y",ngx.req.start_time())
 args["country"] = getCountry()
+if args["week"] == "00" then 
+  args["week"] = "52" 
+  args["year"] = tostring( tonumber(args["year"]) - 1 )
+end
 local cjson = require "cjson"
 local args_json = cjson.encode(args)
 

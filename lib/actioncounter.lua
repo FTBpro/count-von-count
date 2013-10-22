@@ -14,19 +14,23 @@
 
 local Base = {}
 
-function Base:new(_type, ids)
-  local redis_key = _type
+function Base:new(_obj_type, ids, _type)
+  local redis_key = _obj_type
   for k, id in ipairs(ids) do
     redis_key = redis_key .. "_" .. id
   end
-  local baseObj = { redis_key = redis_key }
+  local baseObj = { redis_key = redis_key, _type = _type}
   self.__index = self
   return setmetatable(baseObj, self)
 end
 
 
 function Base:count(key, num)
-  redis.call("HINCRBY", self.redis_key, key, num)
+  if self._type == "set" then
+    redis.call("ZINCRBY", self.redis_key, num, key)
+  else
+    redis.call("HINCRBY", self.redis_key, key, num)
+  end
 end
 
 ------------- Helper Methods ------------------------
@@ -49,7 +53,7 @@ local function addValuesToKey(tbl, key)
   local rslt = key
   local match = rslt:match("{%w*}")
   while match do
-    local subStr = tbl[match:sub(2, -2)] 
+    local subStr = tbl[match:sub(2, -2)]
     rslt = rslt:gsub(match, subStr)
     match = rslt:match("{%w*}")
   end
@@ -71,8 +75,9 @@ if action_config then
       local ids = getValueByKeys(params, defs["id"])
       local key = addValuesToKey(params, defs["count"])
       local change = defs["change"]
-      
-      local obj = Base:new(obj_type, ids)   
+      local _type = defs["type"] or "hash"
+
+      local obj = Base:new(obj_type, ids, _type)
       obj:count(key, change)
     end
   end

@@ -33,6 +33,18 @@ function Base:count(key, num)
   end
 end
 
+
+----------------- Custom Methods -------------------------
+
+function Base:conditionalCount(should_count, key)
+  if should_count ~= "0" and should_count ~= "false" then 
+    self:count(key, 1)
+  end
+end
+
+----------------------------------------------------------
+
+
 ------------- Helper Methods ------------------------
 
 -- return an array with all the values in tbl that match the given keys array
@@ -60,25 +72,40 @@ local function addValuesToKey(tbl, key)
   return rslt
 end
 
+
 --------------------------------------------------
 
 local params = cjson.decode(ARGV[1])
 local config = cjson.decode(ARGV[2])
 local action = params["action"]
-local defaultMethod = { count = action, change = 1 }
+local defaultMethod = { change = 1, custom_functions = {} }
 
 local action_config = config[action]
 if action_config then
   for obj_type, methods in pairs(action_config) do
     for i, defs in ipairs(methods) do
       setmetatable(defs, { __index = defaultMethod })
+
       local ids = getValueByKeys(params, defs["id"])
-      local key = addValuesToKey(params, defs["count"])
-      local change = defs["change"]
       local _type = defs["type"] or "hash"
 
       local obj = Base:new(obj_type, ids, _type)
-      obj:count(key, change)
+      
+      if defs["count"] then
+        local key = addValuesToKey(params, defs["count"])
+        local change = defs["change"]
+        obj:count(key, change)
+      end
+
+      for j, custom_function in ipairs(defs["custom_functions"]) do
+        local function_name = custom_function["name"]
+        local args = {}
+        for z, arg in ipairs(custom_function["args"]) do
+          local arg_value = addValuesToKey(params, arg)
+          table.insert(args, arg_value)
+        end
+        obj[function_name](obj, unpack(args))          
+      end
     end
   end
 end

@@ -10,6 +10,38 @@
 --   return new_class
 -- end
 
+---------- Array methods ---------------------------
+
+local function concatToArray(a1, a2)
+  for i = 1, #a2 do
+    a1[#a1 + 1] = a2[i]
+  end
+  return a1
+end
+
+local function flattenArray(arr)
+  local flat = {}
+  for i = 1, #arr do
+    if type(arr[i]) == "table" then
+      local inner_flatten = flattenArray(arr[i])
+      concatToArray(flat, inner_flatten)
+    else
+      flat[#flat + 1] = arr[i]
+    end
+  end
+  return flat
+end
+
+local function dupArray(arr)
+  local dup = {}
+  for i = 1, #arr do
+    dup[i] = arr[i]
+  end
+  return dup
+end
+
+-----------------------------------------------------
+
 -------------- Base Class  ---------------------------------------------------------
 
 local Base = {}
@@ -26,10 +58,13 @@ end
 
 
 function Base:count(key, num)
-  if self._type == "set" then
-    redis.call("ZINCRBY", self.redis_key, num, key)
-  else
-    redis.call("HINCRBY", self.redis_key, key, num)
+  local allKeys = flattenArray({ key })
+  for i, curKey in ipairs(allKeys) do
+    if self._type == "set" then
+      redis.call("ZINCRBY", self.redis_key, num, curKey)
+    else
+      redis.call("HINCRBY", self.redis_key, curKey, num)
+    end
   end
 end
 
@@ -60,16 +95,32 @@ local function getValueByKeys(tbl, keys)
   return values
 end
 
--- parse key and replace "place holders" with their value from tbl
+-- parse key and replace "place holders" with their value from tbl.
+-- matching replace values in tbl can be arrays, in such case an array will be returned with all the possible keys combinations
 local function addValuesToKey(tbl, key)
-  local rslt = key
-  local match = rslt:match("{%w*}")
+  local rslt = { key }
+  local match = key:match("{%w*}")
+  
   while match do
-    local subStr = tbl[match:sub(2, -2)]
-    rslt = rslt:gsub(match, subStr)
-    match = rslt:match("{%w*}")
+    local subStrings = flattenArray({ tbl[match:sub(2, -2)] })
+    local tempResult = {}
+    for i, subStr in ipairs(subStrings) do
+      local dup = dupArray(rslt)
+      for j, existingKey in ipairs(dup) do
+        local curKey = existingKey:gsub(match, subStr)
+        dup[j] = curKey
+       end
+       concatToArray(tempResult, dup)
+    end
+    rslt = tempResult
+    match = rslt[1]:match("{%w*}")
   end
-  return rslt
+
+  if #rslt == 1 then 
+    return rslt[1]
+  else  
+    return rslt
+  end
 end
 
 
@@ -79,8 +130,9 @@ local params = cjson.decode(ARGV[1])
 local config = cjson.decode(ARGV[2])
 local action = params["action"]
 local defaultMethod = { change = 1, custom_functions = {} }
-
 local action_config = config[action]
+
+
 if action_config then
   for obj_type, methods in pairs(action_config) do
     for i, defs in ipairs(methods) do
@@ -109,3 +161,4 @@ if action_config then
     end
   end
 end
+

@@ -36,7 +36,7 @@ set :use_sudo, false
 set :nginx_dir, "/usr/local/openresty/nginx"
 
 # set(:rails_env) { stage }
-env_servers = { testo: "54.212.253.88", production: "54.244.236.77", utest: "54.214.235.215" }
+env_servers = { production: "54.244.236.77", testo: "54.214.235.215" }
 server env_servers[env.to_sym], :app, :web, :db
 
 after 'deploy:setup', 'nginx:folder_permissions', 'symlink:app', 'symlink:conf', 'redis:start', 'nginx:start'

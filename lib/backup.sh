@@ -15,8 +15,8 @@ for file in $NGINX_LOGS_DIR/access.log*gz
     then
       FOLDER=$(date --date @${BASH_REMATCH[0]} +%Y/%m/%d)
       ext=$(date --date @${BASH_REMATCH[0]} +%H-%M-%S)
-      $(mkdir -p $BACKUP_FOLDER/$FOLDER)
-      $(cp -n $file $BACKUP_FOLDER/$FOLDER/$FILENAME-$ext.gz)
+      mkdir -p $BACKUP_FOLDER/$FOLDER
+      cp -n $file $BACKUP_FOLDER/$FOLDER/$FILENAME-$ext.gz
     fi
   done
 }
@@ -26,8 +26,8 @@ copyRDBFile()
   TIMESTAMP=$(redis-cli lastsave)
   FOLDER=$(date --date @$TIMESTAMP +%Y/%m/%d)
   FILE_NAME=$(date --date @$TIMESTAMP +%H-%M-%S)
-  $(mkdir -p $BACKUP_FOLDER/$FOLDER)
-  $(cp $RDB_FILEPATH $BACKUP_FOLDER/$FOLDER/$FILE_NAME.rdb)
+  mkdir -p $BACKUP_FOLDER/$FOLDER
+  cp $RDB_FILEPATH $BACKUP_FOLDER/$FOLDER/$FILE_NAME.rdb
 }
 
 copyLogsFile

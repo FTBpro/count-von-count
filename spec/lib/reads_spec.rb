@@ -59,7 +59,7 @@ describe "Read Action" do
 
    describe "UserWeeklyDemographics" do
     it "should increase reads counter" do
-      $redis.hget(@user_weekly_demographics_key, "N/A").to_i.should eq @user_weekly_demographics_data["N/A"].to_i + 1
+      $redis.hget(@user_weekly_demographics_key, "--").to_i.should eq @user_weekly_demographics_data["--"].to_i + 1
     end
   end
 
@@ -140,7 +140,7 @@ describe "Read Action" do
 
     it "should not increase the author's reads count in the leaderboard for the given league and current month and year" do
       @league_monthly_leaderboard.set["user_#{@author.id}"].to_i.should eq @league_monthly_leaderboard_data["user_#{@author.id}"]
-    end    
+    end
 
     it "should not increase the author's reads count in the leaderboard for the given league and current week and year" do
       @team_weekly_leaderboard.set["user_#{@author.id}"].to_i.should eq @team_weekly_leaderboard_data["user_#{@author.id}"]
@@ -148,7 +148,7 @@ describe "Read Action" do
 
     it "should not increase the author's reads count in the leaderboard for the given league and current month and year" do
       @team_monthly_leaderboard.set["user_#{@author.id}"].to_i.should eq @team_monthly_leaderboard_data["user_#{@author.id}"]
-    end    
+    end
   end
 
 
@@ -167,7 +167,7 @@ describe "Read Action" do
 
     it "should not increase the author's reads count in the leaderboard for the given league and current month and year" do
       @league_monthly.set["post_#{@post.id}"].to_i.should eq @league_monthly_data["post_#{@post.id}"]
-    end    
+    end
 
     it "should not increase the author's reads count in the leaderboard for the given league and current week and year" do
       @team_weekly.set["post_#{@post.id}"].to_i.should eq @team_weekly_data["post_#{@post.id}"]
@@ -175,7 +175,7 @@ describe "Read Action" do
 
     it "should not increase the author's reads count in the leaderboard for the given league and current month and year" do
       @team_monthly.set["post_#{@post.id}"].to_i.should eq @team_monthly_data["post_#{@post.id}"]
-    end    
+    end
   end
 
 

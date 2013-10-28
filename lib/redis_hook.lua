@@ -1,7 +1,7 @@
 -- Helper Methods
 function getCountry()
   local country = geodb:query_by_addr(ngx.var.remote_addr, "id")
-  return geoip.name_by_id(country)
+  return geoip.code_by_id(country)
 end
 
 function normalizeKeys(tbl)
@@ -42,8 +42,8 @@ args["week"] = os.date("%W",ngx.req.start_time())
 args["month"] = os.date("%m", ngx.req.start_time())
 args["year"] = os.date("%Y",ngx.req.start_time())
 args["country"] = getCountry()
-if args["week"] == "00" then 
-  args["week"] = "52" 
+if args["week"] == "00" then
+  args["week"] = "52"
   args["year"] = tostring( tonumber(args["year"]) - 1 )
 end
 local cjson = require "cjson"

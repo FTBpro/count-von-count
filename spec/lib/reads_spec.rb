@@ -152,6 +152,49 @@ describe "Read Action" do
   end
 
 
+  describe "Last 7 days league leaderboard custom count" do
+    before :all do
+      @league_seven_days_leaderboards = (0..6).map do |day|
+        create :LeagueSevenDaysLeaderboard, { league: 1, locale: @locale, yday: Time.now.strftime("%j").to_i + day, year: Time.now.strftime("%Y") }
+      end
+      open("http://#{HOST}/reads?post=#{@post.id}&user=#{@user.id}&author=#{@author.id}&league=#{1}&team=#{@team_weekly.ids[:team]}&locale=#{@locale}&ulb=1&plb=1")
+    end
+
+    it "should increase the counter for the author in the leaderboards of 7 days ahead" do
+      @league_seven_days_leaderboards.first(2).each do |cur_day_lb|
+        cur_day_lb.set["user_#{@author.id}"].to_i.should eq cur_day_lb.initial_set["user_#{@author.id}"].to_i + 1
+      end
+    end
+
+    it "should set a ttl of two weeks on each leaderboard" do
+      @league_seven_days_leaderboards.first(2).each do |cur_day_lb|
+        $redis.ttl(cur_day_lb.key).should eq 1209600  # 2 weeks
+      end      
+    end
+  end
+
+
+  describe "Last 7 days team leaderboard custom count" do
+    before :all do
+      @team_seven_days_leaderboards = (0..6).map do |day|
+        create :TeamSevenDaysLeaderboard, { team: 1, locale: @locale, yday: Time.now.strftime("%j").to_i + day, year: Time.now.strftime("%Y") }
+      end
+      open("http://#{HOST}/reads?post=#{@post.id}&user=#{@user.id}&author=#{@author.id}&league=#{rand(20)}&team=#{1}&locale=#{@locale}&ulb=1&plb=1")
+    end
+
+    it "should increase the counter for the author in the leaderboards of 7 days ahead" do
+      @team_seven_days_leaderboards.first(2).each do |cur_day_lb|
+        cur_day_lb.set["user_#{@author.id}"].to_i.should eq cur_day_lb.initial_set["user_#{@author.id}"].to_i + 1
+      end
+    end
+
+    it "should set a ttl of two weeks on each leaderboard" do
+      @team_seven_days_leaderboards.first(2).each do |cur_day_lb|
+        $redis.ttl(cur_day_lb.key).should eq 1209600  # 2 weeks
+      end      
+    end
+  end
+
   describe "Posts Leaderboards custom count" do
     before :all do
       @league_weekly_data = @league_weekly.set

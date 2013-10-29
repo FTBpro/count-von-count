@@ -38,6 +38,7 @@ ngx.header["Cache-Control"] = "no-cache"
 local args = normalizeKeys(ngx.req.get_query_args())
 args["action"] = ngx.var.action
 args["day"] = os.date("%d", ngx.req.start_time())
+args["yday"] = os.date("%j", ngx.req.start_time())
 args["week"] = os.date("%W",ngx.req.start_time())
 args["month"] = os.date("%m", ngx.req.start_time())
 args["year"] = os.date("%Y",ngx.req.start_time())

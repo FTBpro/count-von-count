@@ -51,7 +51,7 @@ function Base:new(_obj_type, ids, _type)
   for k, id in ipairs(ids) do
     redis_key = redis_key .. "_" .. id
   end
-  local baseObj = { redis_key = redis_key, _type = _type}
+  local baseObj = { redis_key = redis_key, _type = _type, _ids = ids,  _obj_type = _obj_type }
   self.__index = self
   return setmetatable(baseObj, self)
 end
@@ -68,7 +68,11 @@ function Base:count(key, num)
   end
 end
 
-
+function Base:expire(ttl)
+  if redis.call("TTL", self.redis_key) == -1 then 
+    redis.call("EXPIRE", self.redis_key, ttl)
+  end
+end
 ----------------- Custom Methods -------------------------
 
 function Base:conditionalCount(should_count, key)
@@ -77,6 +81,18 @@ function Base:conditionalCount(should_count, key)
   end
 end
 
+function Base:sevenDaysCount(should_count, key)
+  if should_count ~= "0" and should_count ~= "false" then
+    local first_day = tonumber(self._ids[3])
+    for day = 0, 6, 1 do
+      local curDayObjIds = dupArray(self._ids)
+      curDayObjIds[3] = (first_day + day) % 366
+      local curDayObj = Base:new(self._obj_type, curDayObjIds, self._type)
+      curDayObj:count(key, 1)
+      curDayObj:expire(1209600)  -- expire in 2 weeks
+    end
+  end
+end
 ----------------------------------------------------------
 
 
@@ -157,6 +173,10 @@ if action_config then
           table.insert(args, arg_value)
         end
         obj[function_name](obj, unpack(args))          
+      end
+
+      if defs["expire"] then 
+        obj:expire(defs["expire"])
       end
     end
   end

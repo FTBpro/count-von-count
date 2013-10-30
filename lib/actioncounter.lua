@@ -76,7 +76,7 @@ end
 ----------------- Custom Methods -------------------------
 
 function Base:conditionalCount(should_count, key)
-  if should_count ~= "0" and should_count ~= "false" then 
+  if should_count ~= "0" and should_count ~= "false" then
     self:count(key, 1)
   end
 end
@@ -122,7 +122,7 @@ end
 local function addValuesToKey(tbl, key)
   local rslt = { key }
   local match = key:match("{%w*}")
-  
+
   while match do
     local subStrings = flattenArray({ tbl[match:sub(2, -2)] })
     local tempResult = {}
@@ -138,18 +138,19 @@ local function addValuesToKey(tbl, key)
     match = rslt[1]:match("{%w*}")
   end
 
-  if #rslt == 1 then 
+  if #rslt == 1 then
     return rslt[1]
-  else  
+  else
     return rslt
   end
 end
 
 
 --------------------------------------------------
-
-local params = cjson.decode(ARGV[1])
-local config = cjson.decode(ARGV[2])
+local mode = ARGV[2] or "live"
+local arg = ARGV[1]
+local params = cjson.decode(arg)
+local config =  cjson.decode(redis.call("get", "action_counter_config_".. mode))
 local action = params["action"]
 local defaultMethod = { change = 1, custom_functions = {} }
 local action_config = config[action]
@@ -164,7 +165,7 @@ if action_config then
       local _type = defs["type"] or "hash"
 
       local obj = Base:new(obj_type, ids, _type)
-      
+
       if defs["count"] then
         local key = addValuesToKey(params, defs["count"])
         local change = defs["change"]
@@ -178,7 +179,7 @@ if action_config then
           local arg_value = addValuesToKey(params, arg)
           table.insert(args, arg_value)
         end
-        obj[function_name](obj, unpack(args))          
+        obj[function_name](obj, unpack(args))
       end
 
       if defs["expire"] then 

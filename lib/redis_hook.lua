@@ -34,7 +34,6 @@ end
 
 ---------------------
 ngx.header["Cache-Control"] = "no-cache"
-
 local args = normalizeKeys(ngx.req.get_query_args())
 args["action"] = ngx.var.action
 args["day"] = os.date("%d", ngx.req.start_time())
@@ -49,10 +48,10 @@ if args["week"] == "00" then
 end
 local cjson = require "cjson"
 local args_json = cjson.encode(args)
-
+ngx.log(ngx.ERR, args_json)
 red = initRedis()
 
-ok, err = red:evalsha(ngx.var.redis_counter_hash, 2, "args", "config", args_json, ngx.var.config)
+ok, err = red:evalsha(ngx.var.redis_counter_hash, 1, "args", args_json)
 if not ok then logErrorAndExit("Error evaluating redis script: ".. err) end
 
 ok, err = red:set_keepalive(10000, 100)

@@ -81,6 +81,12 @@ function Base:conditionalCount(should_count, key)
   end
 end
 
+function Base:countIfExist(value, key)
+  if value and value ~= "" and value ~= "null" and value ~= "nil" then
+    self:count(key, 1)
+  end
+end
+
 function Base:sevenDaysCount(should_count, key)
   if should_count ~= "0" and should_count ~= "false" then
     local first_day = tonumber(self._ids[3])

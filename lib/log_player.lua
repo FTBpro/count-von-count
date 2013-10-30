@@ -23,7 +23,7 @@ end
 
 function parseQueryArgs(queryArgs)
   params = {}
-  for k,v in queryArgs:gmatch("(%w+%[?%]?)=(*)%&?") do
+  for k,v in queryArgs:gmatch("(%w+%[?%]?)=([^&]+)") do
     if k:match("[[]]") then
       local key = k:gsub("[[]]", "")
       if params[key] then
@@ -39,9 +39,8 @@ function parseQueryArgs(queryArgs)
 end
 
 function parseArgs(line)
-  args = parseQueryArgs(line)
   ip, request_time, query_args = line:match("^([^%s]+).*%[(.*)].*GET%s*(.*)%s*HTTP")
-  parseQueryArgs(query_args)
+  args = parseQueryArgs(query_args)
   args["action"] = query_args:match("%/(.*)%?")
   date = parseDate(request_time)
   args["day"] = os.date("%d", date)

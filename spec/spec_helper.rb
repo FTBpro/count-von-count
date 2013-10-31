@@ -54,9 +54,9 @@ end
 lib = File.expand_path('../../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
-ScriptLoader.load
 $redis = Redis.new(host: HOST, port: "6379")
 $redis.flushdb
+ScriptLoader.load
 RedisObjectFactory.redis = $redis
 
 def create(type, ids = nil)

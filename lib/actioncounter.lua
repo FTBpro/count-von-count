@@ -81,9 +81,9 @@ function Base:conditionalCount(should_count, key)
   end
 end
 
-function Base:countIfExist(value, key)
+function Base:countIfExist(value, should_count,  key)
   if value and value ~= "" and value ~= "null" and value ~= "nil" then
-    self:count(key, 1)
+    self:conditionalCount(should_count, key)
   end
 end
 

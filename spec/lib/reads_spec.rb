@@ -171,6 +171,13 @@ describe "Read Action" do
         $redis.ttl(cur_day_lb.key).should eq 1209600  # 2 weeks
       end      
     end
+
+    it "should NOT increase the counter for the author in the leaderboards of 7 days ahead if ulb is false" do
+      open("http://#{HOST}/reads?post=#{@post.id}&user=#{@user.id}&author=#{@author.id}&league=#{1}&team=#{@team_weekly.ids[:team]}&locale=#{@locale}&ulb=0&plb=1")
+      @league_seven_days_leaderboards.first(2).each do |cur_day_lb|
+        cur_day_lb.set["user_#{@author.id}"].to_i.should eq cur_day_lb.initial_set["user_#{@author.id}"].to_i + 1
+      end
+    end    
   end
 
 

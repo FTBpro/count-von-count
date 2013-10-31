@@ -150,7 +150,6 @@ end
 local mode = ARGV[2] or "live"
 local arg = ARGV[1]
 local params = cjson.decode(arg)
-redis.call("set", "mode", mode)
 local config =  cjson.decode(redis.call("get", "action_counter_config_".. mode))
 local action = params["action"]
 local defaultMethod = { change = 1, custom_functions = {} }

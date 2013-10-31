@@ -13,7 +13,7 @@ class ScriptLoader
       set $config '#{config}';
       VARS
       ) }
-    `echo "Reminder1" | sudo -S nginx -s reload`
+    `echo "nuUcwm4k" | sudo -S nginx -s reload`
     sleep 1
   end
 end

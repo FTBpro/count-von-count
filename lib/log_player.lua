@@ -55,10 +55,21 @@ function parseArgs(line)
   return args
 end
 
-local cjson = require "cjson"
-for line in io.lines(logFilePath) do
+function playLine(line)
   args = parseArgs(line)
   args_json = "'" .. cjson.encode(args) .. "'"
   print(args_json)
   os.execute("redis-cli evalsha 66063b195459196a03132c0c89b95efd6c17aa77 2 args mode " .. args_json .. " record")
 end
+
+local cjson = require "cjson"
+
+for line in io.lines(logFilePath) do
+  print("Playing line: " .. line)
+  local status, err = pcall(playLine, line)
+  if not status then
+    print("Error!!! " .. err)
+  end
+end
+
+

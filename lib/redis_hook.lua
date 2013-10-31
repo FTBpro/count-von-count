@@ -48,7 +48,6 @@ if args["week"] == "00" then
 end
 local cjson = require "cjson"
 local args_json = cjson.encode(args)
-ngx.log(ngx.ERR, args_json)
 red = initRedis()
 
 ok, err = red:evalsha(ngx.var.redis_counter_hash, 1, "args", args_json)

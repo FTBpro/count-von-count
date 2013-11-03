@@ -1,29 +1,3 @@
-# set :application, "set your application name here"
-# set :repository,  "set your repository location here"
-
-# # set :scm, :git # You can set :scm explicitly or Capistrano will make an intelligent guess based on known version control directory names
-# # Or: `accurev`, `bzr`, `cvs`, `darcs`, `git`, `mercurial`, `perforce`, `subversion` or `none`
-
-# role :web, "your web-server here"                          # Your HTTP server, Apache/etc
-# role :app, "your app-server here"                          # This may be the same as your `Web` server
-# role :db,  "your primary db-server here", :primary => true # This is where Rails migrations will run
-# role :db,  "your slave db-server here"
-
-# if you want to clean up old releases on each deploy uncomment this:
-# after "deploy:restart", "deploy:cleanup"
-
-# if you're still using the script/reaper helper you will need
-# these http://github.com/rails/irs_process_scripts
-
-# If you are using Passenger mod_rails uncomment this:
-# namespace :deploy do
-#   task :start do ; end
-#   task :stop do ; end
-#   task :restart, :roles => :app, :except => { :no_release => true } do
-#     run "#{try_sudo} touch #{File.join(current_path,'tmp','restart.txt')}"
-#   end
-# end
-
 # -------------------------------------------
 # Git and deploytment details
 # -------------------------------------------
@@ -35,8 +9,7 @@ set :user, "deploy"
 set :use_sudo, false
 set :nginx_dir, "/usr/local/openresty/nginx"
 
-# set(:rails_env) { stage }
-env_servers = { production: "54.244.236.77", testo: "54.214.235.215" }
+env_servers = { production: "***.***.***.***", qa: "***.***.***.***" }
 server env_servers[env.to_sym], :app, :web, :db
 
 after 'deploy:setup', 'nginx:folder_permissions', 'symlink:app', 'symlink:conf', 'redis:start', 'nginx:start'
@@ -95,7 +68,6 @@ namespace :deploy do
     run "sudo rm -f #{nginx_dir}/conf/include/vars.conf"
     run "sudo echo 'set \$redis_counter_hash '$(redis-cli SCRIPT LOAD \"$(cat '#{deploy_to}/current/lib/actioncounter.lua')\")';' > #{nginx_dir}/conf/vars.conf"
     run "sudo echo 'set \$redis_mobile_hash '$(redis-cli SCRIPT LOAD \"$(cat '#{deploy_to}/current/lib/redis_mobile.lua')\")';' >> #{nginx_dir}/conf/vars.conf"
-    run "sudo echo \"set \\$config '$(cat '#{deploy_to}/current/config/actioncounter.config' | tr -d '\n' | tr -d ' ')';\" >> #{nginx_dir}/conf/vars.conf"
     run "sudo redis-cli set action_counter_config_live \"$(cat '#{deploy_to}/current/config/actioncounter.config' | tr -d '\n' | tr -d ' ')\""
   end
 

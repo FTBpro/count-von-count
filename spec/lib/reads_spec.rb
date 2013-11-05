@@ -6,6 +6,7 @@ describe "Read Action" do
     @post = create :Post
     league_id = rand(10)
     team_id = rand(20)
+    user_id = rand(2000)
     @locale = "en"
     @league_weekly = create :LeagueWeekly, { league: league_id, locale: @locale, week: Time.now.strftime("%W"), year: Time.now.strftime("%Y") }
     @league_monthly = create :LeagueMonthly, { league: league_id, locale: @locale, month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
@@ -15,6 +16,8 @@ describe "Read Action" do
     @league_monthly_leaderboard = create :LeagueMonthlyLeaderboard, { league: league_id, locale: @locale, month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
     @team_weekly_leaderboard = create :TeamWeeklyLeaderboard, { team: team_id, locale: @locale, week: Time.now.strftime("%W"), year: Time.now.strftime("%Y") }
     @team_monthly_leaderboard = create :TeamMonthlyLeaderboard, { team: team_id, locale: @locale, month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
+    @user_daily = create :UserDaily, { user: @user.id, day: Time.now.strftime("%d"), month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
+    @author_daily = create :UserDaily, { user: @author.id, day: Time.now.strftime("%d"), month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
   end
 
   before :all do
@@ -50,6 +53,22 @@ describe "Read Action" do
       @post.data["reads"].to_i.should eq @post.initial_data["reads"].to_i + 1
     end
   end
+
+  describe "UserDaily" do
+    it "should increase the daily reads of the user by one" do
+      @user_daily.data["reads"].to_i.should eq @user_daily.initial_data["reads"].to_i + 1
+    end
+
+    it "should increase the daily reads of the author by one" do
+      @author_daily.data["reads_got"].to_i.should eq @author_daily.initial_data["reads_got"].to_i + 1
+    end
+
+    it "should set a TTL for the objects" do
+      $redis.ttl(@user_daily.key).should > 0
+      $redis.ttl(@author_daily.key).should > 0
+    end
+  end
+
 
   describe "UserWeekly" do
     it "should increase reads counter" do

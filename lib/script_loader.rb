@@ -10,7 +10,6 @@ class ScriptLoader
     File.open("../conf/vars.conf", 'w') { |f| f.write(<<-VARS
       set $redis_counter_hash #{reads_hash};
       set $redis_mobile_hash #{mobile_hash};
-      set $config '#{config}';
       VARS
       ) }
     `echo "nuUcwm4k" | sudo -S nginx -s reload`

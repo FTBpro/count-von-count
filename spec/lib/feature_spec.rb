@@ -7,6 +7,7 @@ describe "Login" do
     @category = "Lists"
     @locale = "en"
     @category_monthly_featured = create :CategoryMonthlyFeatured, { category: @category, locale: @locale, month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
+    @user_daily = create :UserDaily, { user: @user.id, day: Time.now.strftime("%d"), month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
     @other_channel = "stam"
   end
 
@@ -31,6 +32,17 @@ describe "Login" do
     end
   end
 
+  describe "UserDaily" do
+    it "should increase the daily featured posts of the user according to the given channel" do
+      @channels.each do |channel|  
+        @user_daily.data["feature_#{channel}"].to_i.should eq @user_daily.initial_data["feature_#{channel}"].to_i + 1
+      end
+    end
+
+    it "should set a TTL for the objects" do
+      $redis.ttl(@user_daily.key).should > 0
+    end
+  end  
 
   describe "CategoryMonthlyFeatured" do
     it "should increase the user num of featured posts in the given category" do

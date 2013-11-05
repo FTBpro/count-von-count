@@ -121,7 +121,7 @@ end
 -- matching replace values in tbl can be arrays, in such case an array will be returned with all the possible keys combinations
 local function addValuesToKey(tbl, key)
   local rslt = { key }
-  local match = key:match("{%w*}")
+  local match = key:match("{.*}")
 
   while match do
     local subStrings = flattenArray({ tbl[match:sub(2, -2)] })
@@ -135,7 +135,7 @@ local function addValuesToKey(tbl, key)
        concatToArray(tempResult, dup)
     end
     rslt = tempResult
-    match = rslt[1]:match("{%w*}")
+    match = rslt[1]:match("{.*}")
   end
 
   if #rslt == 1 then

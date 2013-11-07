@@ -42,6 +42,14 @@ describe "Get" do
     JSON.parse( open("http://#{HOST}/get?#{query_string}").read.gsub("\n", "") )
   end
 
+  describe "Header" do
+  	it "should have a 'Access-Control-Allow-Origin *' in the response header" do
+  	  response = open("http://#{HOST}/get?key=User_#{@user.id}")
+  	  response.meta.keys.should include "access-control-allow-origin"
+  	  response.meta["access-control-allow-origin"].should == "*"
+  	end
+  end
+
   describe "Hash key" do
     describe "single key" do
       it "should return a json with all the attributes of the key when attr params are not defined" do

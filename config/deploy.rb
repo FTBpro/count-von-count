@@ -34,6 +34,8 @@ set :deploy_to, '/home/deploy/action-counter'
 set :user, "deploy"
 set :use_sudo, false
 set :nginx_dir, "/usr/local/openresty/nginx"
+set :branch, fetch(:branch, "master")
+set :env, fetch(:env, "testo")
 
 # set(:rails_env) { stage }
 env_servers = { production: "54.244.236.77", testo: "54.214.235.215" }

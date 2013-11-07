@@ -99,6 +99,14 @@ function Base:sevenDaysCount(should_count, key)
     end
   end
 end
+
+function Base:countAndSetIf(should_count, countKey, redisKey, setKey)
+  if should_count ~= "0" and should_count ~= "false" then
+    self:count(countKey, 1)
+    local setCount = redis.call("ZCOUNT", self.redis_key, "-inf", "+inf")
+    redis.call("HSET", redisKey, setKey, setCount)
+  end  
+end
 ----------------------------------------------------------
 
 

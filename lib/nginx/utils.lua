@@ -10,8 +10,14 @@ function utils:normalizeKeys(tbl)
   local normalized = {}
   for k, v in pairs(tbl) do
     local key = k:gsub("amp;", "")
-    key = key:gsub("[[]]", "")
-    normalized[key] = v
+    local value = v
+    if key:match("[[]]") then 
+      key = key:gsub("[[]]", "")
+      if type(value) ~= "table" then
+        value = { v }
+      end
+    end
+    normalized[key] = value
   end
   return normalized
 end

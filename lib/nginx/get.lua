@@ -1,12 +1,13 @@
 local utils = require "utils"
 local cjson = require "cjson"
 
-local args = utils:normalizeKeys(ngx.req.get_query_args())
+local args = utils:normalizeKeys( ngx.req.get_query_args() )
 local red = utils:initRedis()
 local key = args["key"]
 local attributes = args["attr"]
 local from = args["from"] or 0
 local to = args["to"] or -1
+
 
 function getValues(key, attributes)
 	local value

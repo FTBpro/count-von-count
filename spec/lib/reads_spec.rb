@@ -18,6 +18,7 @@ describe "Read Action" do
     @team_monthly_leaderboard = create :TeamMonthlyLeaderboard, { team: team_id, locale: @locale, month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
     @user_daily = create :UserDaily, { user: @user.id, day: Time.now.strftime("%d"), month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
     @author_daily = create :UserDaily, { user: @author.id, day: Time.now.strftime("%d"), month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
+    @post_daily = create :PostDaily,  {day: Time.now.strftime("%d"), month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
   end
 
   before :all do
@@ -66,6 +67,12 @@ describe "Read Action" do
     it "should set a TTL for the objects" do
       $redis.ttl(@user_daily.key).should > 0
       $redis.ttl(@author_daily.key).should > 0
+    end
+  end
+
+  describe "PostDaily" do
+    it "should add 1 to the post_daily set of today" do
+      @post_daily.set["post_#{@post.id}"].to_i.should eq @post_daily.initial_set["post_#{@post.id}"].to_i + 1
     end
   end
 
@@ -188,7 +195,7 @@ describe "Read Action" do
     it "should set a ttl of two weeks on each leaderboard" do
       @league_seven_days_leaderboards.first(2).each do |cur_day_lb|
         $redis.ttl(cur_day_lb.key).should eq 1209600  # 2 weeks
-      end      
+      end
     end
 
     it "should NOT increase the counter for the author in the leaderboards of 7 days ahead if ulb is false" do
@@ -196,7 +203,7 @@ describe "Read Action" do
       @league_seven_days_leaderboards.first(2).each do |cur_day_lb|
         cur_day_lb.set["user_#{@author.id}"].to_i.should eq cur_day_lb.initial_set["user_#{@author.id}"].to_i + 1
       end
-    end    
+    end
   end
 
 
@@ -217,7 +224,7 @@ describe "Read Action" do
     it "should set a ttl of two weeks on each leaderboard" do
       @team_seven_days_leaderboards.first(2).each do |cur_day_lb|
         $redis.ttl(cur_day_lb.key).should eq 1209600  # 2 weeks
-      end      
+      end
     end
   end
 

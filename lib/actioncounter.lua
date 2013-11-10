@@ -69,7 +69,7 @@ function Base:count(key, num)
 end
 
 function Base:expire(ttl)
-  if redis.call("TTL", self.redis_key) == -1 then 
+  if redis.call("TTL", self.redis_key) == -1 then
     redis.call("EXPIRE", self.redis_key, ttl)
   end
 end
@@ -117,9 +117,41 @@ local function getValueByKeys(tbl, keys)
   return values
 end
 
+local function justDebugIt(tbl, key)
+  local rslt = { key }
+  local match = key:match("{.*}")
+
+  while match do
+    local subStrings = flattenArray({ tbl[match:sub(2, -2)] })
+    local tempResult = {}
+    for i, subStr in ipairs(subStrings) do
+      local dup = dupArray(rslt)
+      for j, existingKey in ipairs(dup) do
+        local curKey = existingKey:gsub(match, subStr)
+        dup[j] = curKey
+       end
+       concatToArray(tempResult, dup)
+    end
+    rslt = tempResult
+    match = rslt[1]:match("{.*}")
+  end
+
+  if #rslt == 1 then
+    return rslt[1]
+  else
+    return rslt
+  end
+end
+
+
 -- parse key and replace "place holders" with their value from tbl.
 -- matching replace values in tbl can be arrays, in such case an array will be returned with all the possible keys combinations
 local function addValuesToKey(tbl, key)
+  local status, err = pcall(justDebugIt, tbl, key)
+  if not status then
+    ngx.log(ngx.ERR, "match is " .. key:match("{.*}") .. " key is " .. key)
+  end
+
   local rslt = { key }
   local match = key:match("{.*}")
 
@@ -182,7 +214,7 @@ if action_config then
         obj[function_name](obj, unpack(args))
       end
 
-      if defs["expire"] then 
+      if defs["expire"] then
         obj:expire(defs["expire"])
       end
     end

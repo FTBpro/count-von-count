@@ -28,6 +28,7 @@ copyRDBFile()
   FILE_NAME=$(date --date @$TIMESTAMP +%H-%M-%S)
   mkdir -p $BACKUP_FOLDER/$FOLDER
   cp $RDB_FILEPATH $BACKUP_FOLDER/$FOLDER/$FILE_NAME.rdb
+  gunzip $RDB_FILEPATH $BACKUP_FOLDER/$FOLDER/$FILE_NAME.rdb
 }
 
 copyLogsFile

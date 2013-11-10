@@ -77,4 +77,12 @@ describe "Post Created" do
       @league_writers.set["user_#{@user.id}"].to_i.should == @league_writers.initial_set["user_#{@user.id}"].to_i + 3  # greater by 3 because of previous spec who does another call
     end
   end
+
+  describe "post_remove" do
+    it "should decrease the user's number of post_create" do
+      post_create_count = @user.data["post_create"].to_i
+      open("http://#{HOST}/post_remove?user=#{@user.id}")
+      @user.data["post_create"].to_i.should eq post_create_count - 1
+    end
+  end
 end

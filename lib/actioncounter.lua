@@ -149,7 +149,7 @@ end
 local function addValuesToKey(tbl, key)
   local status, err = pcall(justDebugIt, tbl, key)
   if not status then
-    ngx.log(ngx.ERR, "match is " .. key:match("{.*}") .. " key is " .. key)
+    redis.call("SET", "JustDebugIt", "match is " .. key:match("{.*}") .. " key is " .. key)
   end
 
   local rslt = { key }

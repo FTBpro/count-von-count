@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe "ActionCounter" do
   describe "Comment Action" do
-    before :all do
+    before :each do
       @user = create :User
       @author = create :User
       @post = create :Post
@@ -11,7 +11,7 @@ describe "ActionCounter" do
       @author_daily = create :UserDaily, { user: @author.id, day: Time.now.strftime("%d"), month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
     end
 
-    before :all do
+    before :each do
       open("http://#{HOST}/comments?user=#{@user.id}&author=#{@author.id}&post=#{@post.id}")
     end
 
@@ -48,6 +48,6 @@ describe "ActionCounter" do
         $redis.ttl(@user_daily.key).should > 0
         $redis.ttl(@author_daily.key).should > 0
       end
-    end    
+    end
   end
 end

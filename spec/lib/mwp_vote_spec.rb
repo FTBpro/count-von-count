@@ -33,5 +33,5 @@ describe "MWP Vote" do
       $redis.ttl(@user_daily.key).should > 0
       $redis.ttl(@author_daily.key).should > 0
     end
-  end 
+  end
 end

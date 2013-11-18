@@ -10,8 +10,9 @@ class RedisObjectFactory
     @ids = ids_
     @id = @ids.values.join("_")
     @key = "#{@type}_#{@id}"
-    initial_data
-    initial_set
+    key_type = self.class.redis.type(@key)
+    initial_data if key_type == "hash" || key_type == "none"
+    initial_set if key_type == "zset" || key_type == "none"
   end
 
   def data

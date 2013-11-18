@@ -43,7 +43,7 @@ describe "Follow/Unfollow" do
         $redis.ttl(@user_daily.key).should > 0
         $redis.ttl(@other_user_daily.key).should > 0
       end
-    end 
+    end
   end
 
   describe "Unfollow" do  #depends on the "Follow" specs
@@ -52,7 +52,7 @@ describe "Follow/Unfollow" do
     end
 
     it "should decrease the user's num of follow by 1" do
-      @user.data["follow"].to_i.should eq @user.initial_data["follow"].to_i 
+      @user.data["follow"].to_i.should eq @user.initial_data["follow"].to_i
     end
 
     it "should not decrease the user's num of follow_actions_total" do
@@ -64,8 +64,8 @@ describe "Follow/Unfollow" do
     end
 
     it "should not decrease the other user's num of followers_actions_total" do
-      @other_user.data["followers_actions_total"].to_i.should eq @other_user.initial_data["followers_actions_total"].to_i + 1   
-    end    
+      @other_user.data["followers_actions_total"].to_i.should eq @other_user.initial_data["followers_actions_total"].to_i + 1
+    end
 
     describe "UserDaily" do
       it "should decrease the daily follows of the user by one" do
@@ -80,7 +80,7 @@ describe "Follow/Unfollow" do
         $redis.ttl(@user_daily.key).should > 0
         $redis.ttl(@other_user_daily.key).should > 0
       end
-    end     
+    end
   end
- 
+
 end

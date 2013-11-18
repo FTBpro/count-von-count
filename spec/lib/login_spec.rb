@@ -22,6 +22,6 @@ describe "Login" do
     it "should set a TTL for the objects" do
       $redis.ttl(@user_daily.key).should > 0
     end
-  end  
+  end
 
 end

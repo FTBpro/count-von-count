@@ -98,7 +98,7 @@ describe "Get" do
     		  hash = get("key[]=#{@user.key}&key[]=#{@author.key}&attr[]=reads&attr[]=logins")
     		  hash.keys.should match_array([@user.key, @author.key])
 	        hash[@user.key].keys.should match_array(["logins", "reads"])
-	        hash[@author.key].keys.should match_array(["logins", "reads"])    		  
+	        hash[@author.key].keys.should match_array(["logins", "reads"])
     		end
 
     		it "should return a json with the given keys as keys and for each key a value for the given attribute (single attribute)" do

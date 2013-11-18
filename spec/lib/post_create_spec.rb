@@ -40,7 +40,7 @@ describe "Post Created" do
       end
 
       it "should not increase the league posts count if league_count is false" do
-        open("http://#{HOST}/post_create?user=#{@user.id}&post=#{@post.id}&league=#{@league_id}&league_count=0&writers_count=true")  
+        open("http://#{HOST}/post_create?user=#{@user.id}&post=#{@post.id}&league=#{@league_id}&league_count=0&writers_count=true")
         @league_counters.data["posts"].to_i.should eq @league_counters.initial_data["posts"].to_i + 1
       end
     end
@@ -52,12 +52,12 @@ describe "Post Created" do
 
       it "should not increase the number of writers for the league if its not a new writer" do
         open("http://#{HOST}/post_create?user=#{@user.id.to_i}&post=#{@post.id}&league=#{@league_id}&league_count=true&writers_count=true")
-        @league_counters.data["writers"].to_i.should eq @current_data["writers"].to_i     
+        @league_counters.data["writers"].to_i.should eq @current_data["writers"].to_i
       end
 
       it "should not increase the number of writers for the league if its a new writer but writers_count is false" do
         open("http://#{HOST}/post_create?user=#{@user.id.to_i + 1}&post=#{@post.id}&league=#{@league_id}&league_count=true&writers_count=false")
-        @league_counters.data["writers"].to_i.should eq @current_data["writers"].to_i    
+        @league_counters.data["writers"].to_i.should eq @current_data["writers"].to_i
       end
 
       it "should increase the number of writers for the league if its a new writer" do
@@ -73,7 +73,7 @@ describe "Post Created" do
     end
 
     it "should not add 1 to the user who created the post if writers_count is false" do
-      open("http://#{HOST}/post_create?user=#{@user.id}&post=#{@post.id}&league=#{@league_id}&league_count=true&writers_count=false")  
+      open("http://#{HOST}/post_create?user=#{@user.id}&post=#{@post.id}&league=#{@league_id}&league_count=true&writers_count=false")
       @league_writers.set["user_#{@user.id}"].to_i.should == @league_writers.initial_set["user_#{@user.id}"].to_i + 3  # greater by 3 because of previous spec who does another call
     end
   end

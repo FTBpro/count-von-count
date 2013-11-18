@@ -6,7 +6,7 @@ describe "Reaction" do
     @author = create :User
     @post = create :Post
     @user_daily = create :UserDaily, { user: @user.id, day: Time.now.strftime("%d"), month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
-    @author_daily = create :UserDaily, { user: @author.id, day: Time.now.strftime("%d"), month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }    
+    @author_daily = create :UserDaily, { user: @author.id, day: Time.now.strftime("%d"), month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
   end
 
   before :all do
@@ -38,6 +38,6 @@ describe "Reaction" do
       $redis.ttl(@user_daily.key).should > 0
       $redis.ttl(@author_daily.key).should > 0
     end
-  end   
+  end
 
 end

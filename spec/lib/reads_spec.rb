@@ -1,12 +1,13 @@
 require 'spec_helper'
+require 'ruby-debug'
 describe "Read Action" do
-  before :all do
-    @user = create :User
-    @author = create :User
-    @post = create :Post
+  before :each do
+    @user = create :User, id: 10
+    @author = create :User, id: 30
+    @post = create :Post, id: 100
     league_id = rand(10)
-    team_id = rand(20)
-    user_id = rand(2000)
+    team_id = 5
+    user_id = 12
     @locale = "en"
     @league_weekly = create :LeagueWeekly, { league: league_id, locale: @locale, week: Time.now.strftime("%W"), year: Time.now.strftime("%Y") }
     @league_monthly = create :LeagueMonthly, { league: league_id, locale: @locale, month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
@@ -21,7 +22,7 @@ describe "Read Action" do
     @post_daily = create :PostDaily,  {day: Time.now.strftime("%d"), month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
   end
 
-  before :all do
+  before :each do
     @user_id = @author.id
     @week = Time.now.strftime("%W")
     @year = Time.now.strftime("%Y")
@@ -33,8 +34,9 @@ describe "Read Action" do
     @user_weekly_demographics_data.merge!($redis.hgetall @user_weekly_demographics_key)
   end
 
-  before :all do
-    open("http://#{HOST}/reads?post=#{@post.id}&user=#{@user.id}&author=#{@author.id}&league=#{@league_weekly.ids[:league]}&team=#{@team_weekly.ids[:team]}&locale=#{@locale}&ulb=1&plb=1")
+  before :each do
+    number = $redis.hget("Post_100", "reads")
+    open("http://#{HOST}/reads?post=#{@post.id}&user=#{@user.id}&author=#{@author.id}&league=#{@league_weekly.ids[:league]}&index=#{number}&team=#{@team_weekly.ids[:team]}&locale=#{@locale}&ulb=1&plb=1")
   end
 
   describe "User" do
@@ -152,7 +154,7 @@ describe "Read Action" do
   end
 
   describe "Users Leaderboards custom count" do
-    before :all do
+    before :each do
       @league_weekly_leaderboard_data = @league_weekly_leaderboard.set
       @league_monthly_leaderboard_data = @league_monthly_leaderboard.set
       @team_weekly_leaderboard_data = @team_weekly_leaderboard.set
@@ -179,7 +181,7 @@ describe "Read Action" do
 
 
   describe "Last 7 days league leaderboard custom count" do
-    before :all do
+    before :each do
       @league_seven_days_leaderboards = (0..6).map do |day|
         create :LeagueSevenDaysLeaderboard, { league: 1, locale: @locale, yday: Time.now.strftime("%j").to_i + day, year: Time.now.strftime("%Y") }
       end
@@ -208,7 +210,7 @@ describe "Read Action" do
 
 
   describe "Last 7 days team leaderboard custom count" do
-    before :all do
+    before :each do
       @team_seven_days_leaderboards = (0..6).map do |day|
         create :TeamSevenDaysLeaderboard, { team: 1, locale: @locale, yday: Time.now.strftime("%j").to_i + day, year: Time.now.strftime("%Y") }
       end
@@ -229,7 +231,7 @@ describe "Read Action" do
   end
 
   describe "Posts Leaderboards custom count" do
-    before :all do
+    before :each do
       @league_weekly_data = @league_weekly.set
       @league_monthly_data = @league_monthly.set
       @team_weekly_data = @team_weekly.set

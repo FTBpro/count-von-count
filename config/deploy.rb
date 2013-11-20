@@ -38,7 +38,7 @@ set :branch, fetch(:branch, "master")
 set :env, fetch(:env, "testo")
 
 # set(:rails_env) { stage }
-env_servers = { production: "54.244.236.77", testo: "54.214.235.215" }
+env_servers = { production: "54.244.236.77", testo: "54.214.48.186" }
 server env_servers[env.to_sym], :app, :web, :db
 
 after 'deploy:setup', 'nginx:folder_permissions', 'symlink:app', 'symlink:conf', 'redis:start', 'nginx:start'

@@ -99,4 +99,13 @@ describe "Mobile" do
     end
   end
 
+  describe "expire" do
+    it "should have a ttl of 1 month for all mobile related keys" do
+      keys = $redis.keys("mobile_*") + $redis.keys("pn_*")
+      keys.each do |key|
+        $redis.ttl(key).should > 0
+      end
+    end
+  end
+
 end

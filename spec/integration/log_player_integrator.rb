@@ -39,6 +39,6 @@ Spec::Runner.configure do |config|
   end
 
   def run_log_player
-    `lua /usr/local/openresty/nginx/action-counter/lib/log_player.lua /usr/local/openresty/nginx/logs/access.log #{ScriptLoader.log_player_reads_hash} #{ScriptLoader.log_player_mobile_hash} 1`
+    `/usr/local/openresty/lua/bin/lua /usr/local/openresty/nginx/action-counter/lib/log_player.lua /usr/local/openresty/nginx/logs/access.log #{ScriptLoader.log_player_reads_hash} #{ScriptLoader.log_player_mobile_hash} 1`
   end
 end

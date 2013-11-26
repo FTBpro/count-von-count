@@ -21,7 +21,7 @@ end
 
 function getCountry(ip)
   local country = geodb:query_by_addr(ip, "id")
-  return geoip.code_by_id(country)
+  return geoip.code_by_id(country) or "--"
 end
 
 function parseQueryArgs(queryArgs)

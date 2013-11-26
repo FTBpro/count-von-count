@@ -85,7 +85,7 @@ describe "Read Action" do
     end
   end
 
-   describe "UserWeeklyDemographics" do
+  describe "UserWeeklyDemographics" do
     it "should increase reads counter" do
       $redis.hget(@user_weekly_demographics_key, "--").to_i.should eq @user_weekly_demographics_data["--"].to_i + 1
     end

@@ -2,7 +2,7 @@ local redis = require "resty.redis"
 local utils = {}
 
 function utils:getCountry()
-  local country = geodb:query_by_addr("2241.79.120.23", "id")
+  local country = geodb:query_by_addr(ngx.var.remote_addr, "id")
   return geoip.code_by_id(country) or "--"
 end
 

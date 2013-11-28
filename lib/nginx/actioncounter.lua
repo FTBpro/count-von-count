@@ -1,15 +1,5 @@
 local utils = require "utils"
 
-function emptyGif()
-  ngx.exec('/_.gif')
-end
-
-function logErrorAndExit(err)
-   ngx.log(ngx.ERR, err)
-   emptyGif()
-end
-
-
 ngx.header["Cache-Control"] = "no-cache"
 local args = ngx.req.get_query_args()
 args = utils:normalizeKeys(args)
@@ -29,8 +19,8 @@ local args_json = cjson.encode(args)
 local red = utils:initRedis()
 
 ok, err = red:evalsha(ngx.var.redis_counter_hash, 1, "args", args_json)
-if not ok then logErrorAndExit("Error evaluating redis script: ".. err) end
+if not ok then utils:logErrorAndExit("Error evaluating redis script: ".. err) end
 
 ok, err = red:set_keepalive(10000, 100)
-if not ok then ngx.log(ngx.ERR, "Error setting redis keep alive ".. err) end
-emptyGif()
+if not ok then utils:logErrorAndExit("Error setting redis keep alive ".. err) end
+utils:emptyGif()

@@ -26,8 +26,17 @@ function utils:initRedis()
   local red = redis:new()
   red:set_timeout(3000) -- 3 sec
   local ok, err = red:connect("127.0.0.1", 6379)
-  if not ok then logErrorAndExit("Error connecting to redis: ".. err) end
+  if not ok then utils:logErrorAndExit("Error connecting to redis: ".. err) end
   return red
+end
+
+function utils:logErrorAndExit(err)
+   ngx.log(ngx.ERR, err)
+   utils:emptyGif()
+end
+
+function utils:emptyGif()
+  ngx.exec('/_.gif')
 end
 
 return utils

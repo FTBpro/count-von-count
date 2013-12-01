@@ -69,7 +69,7 @@ function Base:count(key, num)
 end
 
 function Base:expire(ttl)
-  if redis.call("TTL", self.redis_key) == -1 then 
+  if redis.call("TTL", self.redis_key) == -1 then
     redis.call("EXPIRE", self.redis_key, ttl)
   end
 end
@@ -99,6 +99,14 @@ function Base:sevenDaysCount(should_count, key)
     end
   end
 end
+
+function Base:countAndSetIf(should_count, countKey, redisKey, setKey)
+  if should_count ~= "0" and should_count ~= "false" then
+    self:count(countKey, 1)
+    local setCount = redis.call("ZCOUNT", self.redis_key, "-inf", "+inf")
+    redis.call("HSET", redisKey, setKey, setCount)
+  end
+end
 ----------------------------------------------------------
 
 
@@ -117,11 +125,9 @@ local function getValueByKeys(tbl, keys)
   return values
 end
 
--- parse key and replace "place holders" with their value from tbl.
--- matching replace values in tbl can be arrays, in such case an array will be returned with all the possible keys combinations
-local function addValuesToKey(tbl, key)
+local function justDebugIt(tbl, key)
   local rslt = { key }
-  local match = key:match("{%w*}")
+  local match = key:match("{[%w_]*}")
 
   while match do
     local subStrings = flattenArray({ tbl[match:sub(2, -2)] })
@@ -135,7 +141,41 @@ local function addValuesToKey(tbl, key)
        concatToArray(tempResult, dup)
     end
     rslt = tempResult
-    match = rslt[1]:match("{%w*}")
+    match = rslt[1]:match("{[%w_]*}")
+  end
+
+  if #rslt == 1 then
+    return rslt[1]
+  else
+    return rslt
+  end
+end
+
+
+-- parse key and replace "place holders" with their value from tbl.
+-- matching replace values in tbl can be arrays, in such case an array will be returned with all the possible keys combinations
+local function addValuesToKey(tbl, key)
+  local status, err = pcall(justDebugIt, tbl, key)
+  if not status then
+    redis.call("SET", "JustDebugIt", "match is " .. key:match("{.*}") .. " key is " .. key)
+  end
+
+  local rslt = { key }
+  local match = key:match("{[%w_]*}")
+
+  while match do
+    local subStrings = flattenArray({ tbl[match:sub(2, -2)] })
+    local tempResult = {}
+    for i, subStr in ipairs(subStrings) do
+      local dup = dupArray(rslt)
+      for j, existingKey in ipairs(dup) do
+        local curKey = existingKey:gsub(match, subStr)
+        dup[j] = curKey
+       end
+       concatToArray(tempResult, dup)
+    end
+    rslt = tempResult
+    match = rslt[1]:match("{[%w_]*}")
   end
 
   if #rslt == 1 then
@@ -182,7 +222,7 @@ if action_config then
         obj[function_name](obj, unpack(args))
       end
 
-      if defs["expire"] then 
+      if defs["expire"] then
         obj:expire(defs["expire"])
       end
     end

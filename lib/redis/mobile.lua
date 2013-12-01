@@ -7,16 +7,28 @@ function MobileActivity:new(id_, locale_, team_id_, date_, article_pn_, match_pn
 end
 
 function MobileActivity:markActive()
-  redis.call("SETBIT", "mobile_activity_" .. self.locale .. "_team_" .. self.team_id .. "_article_pn_" .. self.article_pn .. "_" .. self.date, self.id, 1)
-  redis.call("SETBIT", "mobile_activity_" .. self.locale .. "_team_" .. self.team_id .. "_match_pn_" .. self.match_pn .. "_" .. self.date, self.id, 1)
-  redis.call("SETBIT", "mobile_activity_" .. "article_pn_" .. self.article_pn .. "_" .. self.date, self.id, 1)
-  redis.call("SETBIT", "mobile_activity_" .. "match_pn_" .. self.match_pn .. "_" .. self.date, self.id, 1)
+  local keys = { 
+    "mobile_activity_" .. self.locale .. "_team_" .. self.team_id .. "_article_pn_" .. self.article_pn .. "_" .. self.date, 
+    "mobile_activity_" .. self.locale .. "_team_" .. self.team_id .. "_match_pn_" .. self.match_pn .. "_" .. self.date, 
+    "mobile_activity_" .. "article_pn_" .. self.article_pn .. "_" .. self.date, 
+    "mobile_activity_" .. "match_pn_" .. self.match_pn .. "_" .. self.date 
+  }
+  for i, key in pairs(keys) do
+    redis.call("SETBIT", key, self.id, 1)
+    self:expire(key, 2592000)
+  end
 end
 
 function MobileActivity:pn_action(action_type)
   if self:valid_action(action_type) then
-    redis.call("INCR", "pn_" .. action_type .. "_" .. self.locale .. "_team_" .. self.team_id .. "_" .. self.date )
-    redis.call("INCR", "pn_" .. action_type .. "_" .. self.date )
+    local keys = {
+      "pn_" .. action_type .. "_" .. self.locale .. "_team_" .. self.team_id .. "_" .. self.date,
+      "pn_" .. action_type .. "_" .. self.date
+    }
+    for i, key in ipairs(keys) do
+      redis.call("INCR", key)
+      self:expire(key, 2592000)
+    end
   end
 end
 
@@ -26,6 +38,10 @@ function MobileActivity:valid_action(action_type)
     if v == action_type then return true end
   end
   return false
+end
+
+function MobileActivity:expire(key, ttl)
+  redis.call("EXPIRE", key, ttl)
 end
 
 local params = cjson.decode(ARGV[1])

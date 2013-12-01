@@ -6,7 +6,9 @@ describe "ActionCounter" do
     @author = create :User
     @post = create :Post
     @user_weekly = create :UserWeekly, { user: @author.id, week: Time.now.strftime("%W"), year: Time.now.strftime("%Y") }
-  end       
+    @user_daily = create :UserDaily, { user: @user.id, day: Time.now.strftime("%d"), month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
+    @author_daily = create :UserDaily, { user: @author.id, day: Time.now.strftime("%d"), month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
+  end
 
   describe "Share Action" do
     before :all do
@@ -31,6 +33,21 @@ describe "ActionCounter" do
 
     it "author num of shares he got should be equal to the number of shares in his user weekly (assuming there is no data for those objects in the DB before this specs run)" do
       @author.data["shares_got"].should eq @user_weekly.data["shares"]
+    end
+
+    describe "UserDaily" do
+      it "should increase the daily shares of the user by one" do
+        @user_daily.data["shares"].to_i.should eq @user_daily.initial_data["shares"].to_i + 1
+      end
+
+      it "should increase the daily shares of the author by one" do
+        @author_daily.data["shares_got"].to_i.should eq @author_daily.initial_data["shares_got"].to_i + 1
+      end
+
+      it "should set a TTL for the objects" do
+        $redis.ttl(@user_daily.key).should > 0
+        $redis.ttl(@author_daily.key).should > 0
+      end
     end
   end
 
@@ -57,7 +74,22 @@ describe "ActionCounter" do
 
     it "author num of likes he got should be equal to the number of likes in his user weekly (assuming there is no data for those objects in the DB before this specs run)" do
       @author.data["likes_got"].should eq @user_weekly.data["likes"]
-    end    
+    end
+
+    describe "UserDaily" do
+      it "should increase the daily likes of the user by one" do
+        @user_daily.data["likes"].to_i.should eq @user_daily.initial_data["likes"].to_i + 1
+      end
+
+      it "should increase the daily likes of the author by one" do
+        @author_daily.data["likes_got"].to_i.should eq @author_daily.initial_data["likes_got"].to_i + 1
+      end
+
+      it "should set a TTL for the objects" do
+        $redis.ttl(@user_daily.key).should > 0
+        $redis.ttl(@author_daily.key).should > 0
+      end
+    end
   end
 
   describe "Tweet Action" do
@@ -83,7 +115,22 @@ describe "ActionCounter" do
 
     it "author num of tweets he got should be equal to the number of tweets in his user weekly (assuming there is no data for those objects in the DB before this specs run)" do
       @author.data["tweets_got"].should eq @user_weekly.data["tweets"]
-    end        
+    end
+
+    describe "UserDaily" do
+      it "should increase the daily tweets of the user by one" do
+        @user_daily.data["tweets"].to_i.should eq @user_daily.initial_data["tweets"].to_i + 1
+      end
+
+      it "should increase the daily tweets of the author by one" do
+        @author_daily.data["tweets_got"].to_i.should eq @author_daily.initial_data["tweets_got"].to_i + 1
+      end
+
+      it "should set a TTL for the objects" do
+        $redis.ttl(@user_daily.key).should > 0
+        $redis.ttl(@author_daily.key).should > 0
+      end
+    end
   end
 
   describe "gplus" do
@@ -109,6 +156,21 @@ describe "ActionCounter" do
 
     it "author num of gplus he got should be equal to the number of gplus in his user weekly (assuming there is no data for those objects in the DB before this specs run)" do
       @author.data["gplus_got"].should eq @user_weekly.data["gplus"]
-    end        
+    end
+
+    describe "UserDaily" do
+      it "should increase the daily gplus of the user by one" do
+        @user_daily.data["gplus"].to_i.should eq @user_daily.initial_data["gplus"].to_i + 1
+      end
+
+      it "should increase the daily gplus of the author by one" do
+        @author_daily.data["gplus_got"].to_i.should eq @author_daily.initial_data["gplus_got"].to_i + 1
+      end
+
+      it "should set a TTL for the objects" do
+        $redis.ttl(@user_daily.key).should > 0
+        $redis.ttl(@author_daily.key).should > 0
+      end
+    end
   end
 end

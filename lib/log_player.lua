@@ -1,5 +1,8 @@
 package.cpath = "/usr/local/openresty/lualib/?.so;" .. package.cpath
 local logFilePath = arg[1]
+local redisReadsScriptHash = arg[2]
+local redisMobileScriptHash = arg[3]
+local database_index = arg[4] or 0
 local MON={Jan=1,Feb=2,Mar=3,Apr=4,May=5,Jun=6,Jul=7,Aug=8,Sep=9,Oct=10,Nov=11,Dec=12}
 local geoip = require "geoip";
 local geoip_country = require "geoip.country"
@@ -18,14 +21,15 @@ end
 
 function getCountry(ip)
   local country = geodb:query_by_addr(ip, "id")
-  return geoip.code_by_id(country)
+  return geoip.code_by_id(country) or "--"
 end
 
 function parseQueryArgs(queryArgs)
   params = {}
-  for k,v in queryArgs:gmatch("(%w+%[?%]?)=([^&]+)") do
+  for k,v in queryArgs:gmatch("([%w_]+%[?%]?)=([^&]+)") do
     if k:match("[[]]") then
       local key = k:gsub("[[]]", "")
+      --key = k:gsub("amp;", "")
       if params[key] then
         table.insert(params[key], v)
       else
@@ -39,15 +43,19 @@ function parseQueryArgs(queryArgs)
 end
 
 function parseArgs(line)
-  ip, request_time, query_args = line:match("^([^%s]+).*%[(.*)].*GET%s*(.*)%s*HTTP")
+  ip, request_time, query_args = line:match("^([^%s]+).*%[(.*)].*GET%s*(.*)%s* HTTP")
   args = parseQueryArgs(query_args)
-  args["action"] = query_args:match("%/(.*)%?")
+  if not isMobileAction(query_args:match("%/(.*)%?")) then args["action"] = query_args:match("%/(.*)%?") end
+  args["alias_action"] = query_args:match("%/(.*)%?") -- ugly patch because on mobile we have an arg called 'action'
   date = parseDate(request_time)
   args["day"] = os.date("%d", date)
   args["week"] = os.date("%W", date)
+  args["yday"] = os.date("%j", date)
   args["month"] = os.date("%m", date)
   args["year"] = os.date("%Y", date)
+  args["date"] = os.date("%Y-%m-%d",date)
   args["country"] = getCountry(ip)
+
   if args["week"] == "00" then
     args["week"] = "52"
     args["year"] = tostring( tonumber(args["year"]) - 1 )
@@ -59,7 +67,23 @@ function playLine(line)
   args = parseArgs(line)
   args_json = "'" .. cjson.encode(args) .. "'"
   print(args_json)
-  os.execute("redis-cli evalsha 66063b195459196a03132c0c89b95efd6c17aa77 2 args mode " .. args_json .. " record")
+  if isMobileAction(args["alias_action"]) then
+    print("bababa")
+    for k,v in pairs(args) do
+      print(k)
+      print(v)
+    end
+    print(redisMobileScriptHash)
+    print(database_index)
+    os.execute("redis-cli -n " .. database_index .. " evalsha " .. redisMobileScriptHash .. " 1 args " .. args_json)
+  else
+    os.execute("redis-cli -n " .. database_index .. " evalsha " .. redisReadsScriptHash .. " 2 args mode " .. args_json .. " record")
+  end
+end
+
+function isMobileAction(action)
+  print(action)
+  return action == "mobile"
 end
 
 local cjson = require "cjson"

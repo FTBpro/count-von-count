@@ -1,11 +1,13 @@
 require 'spec_helper'
+require 'ruby-debug'
 describe "Read Action" do
-  before :all do
-    @user = create :User
-    @author = create :User
-    @post = create :Post
+  before :each do
+    @user = create :User, id: 10
+    @author = create :User, id: 30
+    @post = create :Post, id: 100
     league_id = rand(10)
-    team_id = rand(20)
+    team_id = 5
+    user_id = 12
     @locale = "en"
     @league_weekly = create :LeagueWeekly, { league: league_id, locale: @locale, week: Time.now.strftime("%W"), year: Time.now.strftime("%Y") }
     @league_monthly = create :LeagueMonthly, { league: league_id, locale: @locale, month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
@@ -15,9 +17,12 @@ describe "Read Action" do
     @league_monthly_leaderboard = create :LeagueMonthlyLeaderboard, { league: league_id, locale: @locale, month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
     @team_weekly_leaderboard = create :TeamWeeklyLeaderboard, { team: team_id, locale: @locale, week: Time.now.strftime("%W"), year: Time.now.strftime("%Y") }
     @team_monthly_leaderboard = create :TeamMonthlyLeaderboard, { team: team_id, locale: @locale, month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
+    @user_daily = create :UserDaily, { user: @user.id, day: Time.now.strftime("%d"), month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
+    @author_daily = create :UserDaily, { user: @author.id, day: Time.now.strftime("%d"), month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
+    @post_daily = create :PostDaily,  {day: Time.now.strftime("%d"), month: Time.now.strftime("%m"), year: Time.now.strftime("%Y") }
   end
 
-  before :all do
+  before :each do
     @user_id = @author.id
     @week = Time.now.strftime("%W")
     @year = Time.now.strftime("%Y")
@@ -29,8 +34,9 @@ describe "Read Action" do
     @user_weekly_demographics_data.merge!($redis.hgetall @user_weekly_demographics_key)
   end
 
-  before :all do
-    open("http://#{HOST}/reads?post=#{@post.id}&user=#{@user.id}&author=#{@author.id}&league=#{@league_weekly.ids[:league]}&team=#{@team_weekly.ids[:team]}&locale=#{@locale}&ulb=1&plb=1")
+  before :each do
+    number = $redis.hget("Post_100", "reads")
+    open("http://#{HOST}/reads?post=#{@post.id}&user=#{@user.id}&author=#{@author.id}&league=#{@league_weekly.ids[:league]}&index=#{number}&team=#{@team_weekly.ids[:team]}&locale=#{@locale}&ulb=1&plb=1")
   end
 
   describe "User" do
@@ -51,13 +57,35 @@ describe "Read Action" do
     end
   end
 
+  describe "UserDaily" do
+    it "should increase the daily reads of the user by one" do
+      @user_daily.data["reads"].to_i.should eq @user_daily.initial_data["reads"].to_i + 1
+    end
+
+    it "should increase the daily reads of the author by one" do
+      @author_daily.data["reads_got"].to_i.should eq @author_daily.initial_data["reads_got"].to_i + 1
+    end
+
+    it "should set a TTL for the objects" do
+      $redis.ttl(@user_daily.key).should > 0
+      $redis.ttl(@author_daily.key).should > 0
+    end
+  end
+
+  describe "PostDaily" do
+    it "should add 1 to the post_daily set of today" do
+      @post_daily.set["post_#{@post.id}"].to_i.should eq @post_daily.initial_set["post_#{@post.id}"].to_i + 1
+    end
+  end
+
+
   describe "UserWeekly" do
     it "should increase reads counter" do
       $redis.hget(@user_weekly_key, "reads").to_i.should eq @user_weekly_data["reads"].to_i + 1
     end
   end
 
-   describe "UserWeeklyDemographics" do
+  describe "UserWeeklyDemographics" do
     it "should increase reads counter" do
       $redis.hget(@user_weekly_demographics_key, "--").to_i.should eq @user_weekly_demographics_data["--"].to_i + 1
     end
@@ -126,7 +154,7 @@ describe "Read Action" do
   end
 
   describe "Users Leaderboards custom count" do
-    before :all do
+    before :each do
       @league_weekly_leaderboard_data = @league_weekly_leaderboard.set
       @league_monthly_leaderboard_data = @league_monthly_leaderboard.set
       @team_weekly_leaderboard_data = @team_weekly_leaderboard.set
@@ -153,7 +181,7 @@ describe "Read Action" do
 
 
   describe "Last 7 days league leaderboard custom count" do
-    before :all do
+    before :each do
       @league_seven_days_leaderboards = (0..6).map do |day|
         create :LeagueSevenDaysLeaderboard, { league: 1, locale: @locale, yday: Time.now.strftime("%j").to_i + day, year: Time.now.strftime("%Y") }
       end
@@ -169,7 +197,7 @@ describe "Read Action" do
     it "should set a ttl of two weeks on each leaderboard" do
       @league_seven_days_leaderboards.first(2).each do |cur_day_lb|
         $redis.ttl(cur_day_lb.key).should eq 1209600  # 2 weeks
-      end      
+      end
     end
 
     it "should NOT increase the counter for the author in the leaderboards of 7 days ahead if ulb is false" do
@@ -177,12 +205,12 @@ describe "Read Action" do
       @league_seven_days_leaderboards.first(2).each do |cur_day_lb|
         cur_day_lb.set["user_#{@author.id}"].to_i.should eq cur_day_lb.initial_set["user_#{@author.id}"].to_i + 1
       end
-    end    
+    end
   end
 
 
   describe "Last 7 days team leaderboard custom count" do
-    before :all do
+    before :each do
       @team_seven_days_leaderboards = (0..6).map do |day|
         create :TeamSevenDaysLeaderboard, { team: 1, locale: @locale, yday: Time.now.strftime("%j").to_i + day, year: Time.now.strftime("%Y") }
       end
@@ -198,12 +226,12 @@ describe "Read Action" do
     it "should set a ttl of two weeks on each leaderboard" do
       @team_seven_days_leaderboards.first(2).each do |cur_day_lb|
         $redis.ttl(cur_day_lb.key).should eq 1209600  # 2 weeks
-      end      
+      end
     end
   end
 
   describe "Posts Leaderboards custom count" do
-    before :all do
+    before :each do
       @league_weekly_data = @league_weekly.set
       @league_monthly_data = @league_monthly.set
       @team_weekly_data = @team_weekly.set

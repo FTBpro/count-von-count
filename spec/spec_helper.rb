@@ -5,6 +5,7 @@ require 'spork'
 require 'redis'
 require 'json'
 require 'support/redis_object_factory'
+require "integration/log_player_integrator"
 #uncomment the following line to use spork with the debugger
 #require 'spork/ext/ruby-debug'
 
@@ -55,8 +56,8 @@ lib = File.expand_path('../../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 $redis = Redis.new(host: HOST, port: "6379")
-$redis.flushdb
-ScriptLoader.load
+$log_player_redis = Redis.new(host: HOST, port: "6379", db: 1)
+ScriptLoader.load(true)
 RedisObjectFactory.redis = $redis
 
 def create(type, ids = nil)

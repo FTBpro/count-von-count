@@ -13,13 +13,11 @@ copyLogsFile()
     REGEX='[0-9]{10}'
     if [[ $FILENAME =~ $REGEX ]]
     then
-      #DAY_FOLDER=$(date --date @${BASH_REMATCH[0]} +%Y/%m/%d)
-      DAY_FOLDER="2013/11/28"
+      DAY_FOLDER=$(date --date @${BASH_REMATCH[0]} +%Y/%m/%d)
       DEST_FOLDER=$BACKUP_FOLDER//access_logs/$DAY_FOLDER
       mkdir -p $DEST_FOLDER
-      #ext=$(date --date @${BASH_REMATCH[0]} +%H-%M-%S)
-      ext="12-30-14"
-      cp -n $file $DEST_FOLDER/$FILENAME-$ext.gz
+      EXT=$(date --date @${BASH_REMATCH[0]} +%H-%M-%S)
+      cp -n $file $DEST_FOLDER/$FILENAME-$EXT.gz
     fi
   done
 }
@@ -27,11 +25,9 @@ copyLogsFile()
 copyRDBFile()
 {
   TIMESTAMP=$(redis-cli lastsave)
-  #DAY_FOLDER=$(date --date @$TIMESTAMP +%Y/%m/%d)
-  DAY_FOLDER="2013/11/28"
+  DAY_FOLDER=$(date --date @$TIMESTAMP +%Y/%m/%d)
   mkdir -p $BACKUP_FOLDER/$DAY_FOLDER
-  #FILE_NAME=$(date --date @$TIMESTAMP +%H-%M-%S)
-  FILE_NAME="21-23-23"
+  FILE_NAME=$(date --date @$TIMESTAMP +%H-%M-%S)
   DEST_RDB_FILE_PATH=$BACKUP_FOLDER/$DAY_FOLDER/$FILE_NAME.rdb
   cp $RDB_FILEPATH $DEST_RDB_FILE_PATH
   gzip $DEST_RDB_FILE_PATH
@@ -39,8 +35,7 @@ copyRDBFile()
 
 monthlyBackup()
 {
-  #MONTH=$(date +%Y/%m)
-  MONTH="2013/12"
+  MONTH=$(date +%Y/%m)
   MONTH_FOLDER=$BACKUP_FOLDER/$MONTH/monthly_backup
   mkdir -p $MONTH_FOLDER
   rm -rfv $MONTH_FOLDER/*
@@ -49,8 +44,7 @@ monthlyBackup()
 
 weeklyBackup()
 {
-  #MONTH=$(date +%Y/%m)
-  MONTH="2013/12"
+  MONTH=$(date +%Y/%m)
   WEEK_BACKUPS_FOLDER=$BACKUP_FOLDER/$MONTH/weekly_backup
   mkdir -p $WEEK_BACKUPS_FOLDER
   CURRENT_WEEK_BACKUPS_FOLDER=$WEEK_BACKUPS_FOLDER/$(date +%d)
@@ -66,6 +60,7 @@ then
   monthlyBackup
 fi
 
+#Sunday's
 if [ $(date +%u) == "7" ]
 then
   weeklyBackup

@@ -1,3 +1,5 @@
+![alt tag](http://1.bp.blogspot.com/_zCGbA5Pv0PI/TGj5YnGEDDI/AAAAAAAADD8/ipYKIgc7Jg0/s400/CountVonCount.jpg)
+
 Setting up a server (Ubuntu 13)
 ---------------------------------
 1) install redis-server using apt-get install redis-server

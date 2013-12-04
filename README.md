@@ -1,6 +1,6 @@
 **General notes from Udi**
-1. There is absolutely no introduction as to what this project does at all. It's definitely not trivial, so it's completely mandatory. It's more important than setup notes... What's special about counting here?  You can give a few short examples to begin with, to get people interested...
-2. I think you should pay more attention to correct capitalization in beginnings of sentences. Makes things much easier to read. Don't blame me if I didn't do the same in my comments ;)
+1. There is absolutely no introduction as to what this project does at all. It's definitely not trivial, so it's completely mandatory. It's more important than setup notes... What's special about counting here?  You can give a few short examples to begin with, to get people interested...  
+2. I think you should pay more attention to correct capitalization in beginnings of sentences. Makes things much easier to read. Don't blame me if I didn't do the same in my comments ;)  
 3. I generally didn't comment on grammar mistakes (I did found some). I think we should do proofing after the text is more-or-less finalized? Your thoughts?
 
 
@@ -12,12 +12,12 @@ Count Von Count
 
 Setting up a server (Ubuntu 13) 
 ---------------------------------
-*Any reason this should be Ubuntu 13? (you mean 13.04? 13.10?). You can just say which version you tested on, and that it should work on others. Won't it work on a Mac, for development, just the same?*
-1. install redis-server using apt-get install redis-server *Udi: no need to tell them how to install redis. link to redis project and let the have fun*
-2. follow download and install direction on http://openresty.org/#Installation. recommended to use default settings and directory structure! *Again, I would say, "Install OpenResty. You should use the default settings."*
-3. install git (sudo apt-get install git) *They know how to install git ;)*
-4. add "include /usr/local/openresty/nginx/conf/include/*;" to openresty's nginx.conf, under the 'http' section (by default its in /usr/local/openresty/nginx/conf)
-5. add set worker_rlimit_nofile 30000 in nginx.conf *Maybe you should show a syntax-higlighted example of nginx.conf with the needed changes in the last 2 steps*
+*Udi: Any reason this should be Ubuntu 13? (you mean 13.04? 13.10?). You can just say which version you tested on, and that it should work on others. Won't it work on a Mac, for development, just the same?*  
+1. install redis-server using apt-get install redis-server *Udi: no need to tell them how to install redis. link to redis project and let the have fun*  
+2. follow download and install direction on http://openresty.org/#Installation. recommended to use default settings and directory structure! *Udi: Again, I would say, "Install OpenResty. You should use the default settings."*  
+3. install git (sudo apt-get install git) *Udi: They know how to install git ;)*  
+4. add "include /usr/local/openresty/nginx/conf/include/*;" to openresty's nginx.conf, under the 'http' section (by default its in /usr/local/openresty/nginx/conf)  
+5. add set worker_rlimit_nofile 30000 in nginx.conf *Udi: Maybe you should show a syntax-higlighted example of nginx.conf with the needed changes in the last 2 steps*
 
 
 Deployment
@@ -42,7 +42,7 @@ SSH into your count-von-count server.
  
 next time after you update the code, SSH to your count-von-count machine, cd to the repository folder, pull the latest code, and then run `sudo ./lib/scripts/reload.sh`
 
-*I'm not sure I understand - you mean you can do remote deployment using Capistrano or local deployment with shell script? If so I would give it such titles - "remote deployment" / "local deployment", and explain why you may choose one over the other...*
+*Udi: I'm not sure I understand - you mean you can do remote deployment using Capistrano or local deployment with shell script? If so I would give it such titles - "remote deployment" / "local deployment", and explain why you may choose one over the other...*  
 
 
 ************************************************************************

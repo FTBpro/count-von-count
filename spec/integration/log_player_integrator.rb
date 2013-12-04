@@ -24,7 +24,7 @@ Spec::Runner.configure do |config|
   end
 
   def unrelevant_keys
-    ["action_counter_config_live"]
+    ["von_count_config_live"]
   end
 
   def compare_value(key)
@@ -39,6 +39,6 @@ Spec::Runner.configure do |config|
   end
 
   def run_log_player
-    `/usr/local/openresty/lua/bin/lua /usr/local/openresty/nginx/action-counter/lib/log_player.lua /usr/local/openresty/nginx/logs/access.log #{ScriptLoader.log_player_reads_hash} #{ScriptLoader.log_player_mobile_hash} 1`
+    `/usr/local/openresty/lua/bin/lua /usr/local/openresty/nginx/count-von-count/lib/log_player.lua /usr/local/openresty/nginx/logs/access.log #{ScriptLoader.log_player_reads_hash} #{ScriptLoader.log_player_mobile_hash} 1`
   end
 end

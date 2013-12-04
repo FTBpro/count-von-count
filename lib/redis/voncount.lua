@@ -175,7 +175,11 @@ local function addValuesToKey(tbl, key)
        concatToArray(tempResult, dup)
     end
     rslt = tempResult
-    match = rslt[1]:match("{[%w_]*}")
+    if #rslt > 0 then
+      match = rslt[1]:match("{[%w_]*}")
+    else
+      match = nil
+    end
   end
 
   if #rslt == 1 then

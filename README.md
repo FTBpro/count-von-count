@@ -10,39 +10,58 @@ Count Von Count
 
 **__NOTICE - if you don't use the default folders as in the instructions, you'll need to edit and change `deploy.rb`, `setup.sh` and  `reload.sh`__**
 
-Setting up a server (Ubuntu 13) 
+Setting up a server
 ---------------------------------
-*Udi: Any reason this should be Ubuntu 13? (you mean 13.04? 13.10?). You can just say which version you tested on, and that it should work on others. Won't it work on a Mac, for development, just the same?*  
-1. install redis-server using apt-get install redis-server *Udi: no need to tell them how to install redis. link to redis project and let the have fun*  
-2. follow download and install direction on http://openresty.org/#Installation. recommended to use default settings and directory structure! *Udi: Again, I would say, "Install OpenResty. You should use the default settings."*  
-3. install git (sudo apt-get install git) *Udi: They know how to install git ;)*  
-4. add "include /usr/local/openresty/nginx/conf/include/*;" to openresty's nginx.conf, under the 'http' section (by default its in /usr/local/openresty/nginx/conf)  
-5. add set worker_rlimit_nofile 30000 in nginx.conf *Udi: Maybe you should show a syntax-higlighted example of nginx.conf with the needed changes in the last 2 steps*
+1. install redis-server (apt-get install redis-server)
+2. download and install [OpenResty](http://openresty.org/#Installation). use default settings and directory structure!
+3. install git
+4. edit openresty's nginx.conf file (by default its in /usr/local/openresty/nginx/conf)
+   * add `worker_rlimit_nofile 30000;` at the top level
+   * add `include /usr/local/openresty/nginx/conf/include/*;` under the 'http' section
 
+   ```conf
+   #nginx.conf
+   worker_rlimit_nofile 30000;
+ 
+   http {
+      include /usr/local/openresty/nginx/conf/include/*;
+      .
+      .
+      .
+   ```
 
 Deployment
 -----------------
-### Using Ruby
-You can use the provided Capistrano deployment.
-Edit deploy.rb file and set the correct deploy user and your servers ips in the `deploy` and `env_servers` variables.
+provided are 2 options: 
 
-**for the first time** run `cap deploy:setup` to bootstrap the server.
+   1. ###remote deployment (using Ruby & [Capistrano](https://github.com/capistrano/capistrano))
+   If you have Ruby on your machine, you should probably use this option.
 
-use `cap deploy` to deploy master branch to production.
+   Edit `deploy.rb` file and set the correct deploy user and your servers ips in the `deploy` and `env_servers` variables.
 
-use `cap deploy -S env=qa -S branch=bigbird` if you want to deploy to a different environment and/or a different branch.
+   **for the first time** run `cap deploy:setup` to bootstrap the server.
+
+   use `cap deploy` to deploy master branch to production.
+
+   use `cap deploy -S env=qa -S branch=bigbird` if you want to deploy to a different environment and/or a different branch.
 
 
-### Using shell scripts 
-SSH into your count-von-count server.
+   2. ###local deployment (using shell scripts)
+   SSH into your count-von-count server.
 
-**for the first time**
-  * clone the git repository into your folder of choice (recommended to use our default - /home/deploy/count-von-count/current)
-  * run `sudo ./lib/scripts/setup.sh`
+   **for the first time**
+     * clone the git repository into your folder of choice (recommended to use our default - /home/deploy/count-von-count/current)
+     * run `sudo ./lib/scripts/setup.sh`. if the last 2 output lines are
+     
+       ~~~
+       >>> nginx is running
+       >>> redis-server is running
+       ~~~
+       
+       then you should be good to go.
  
-next time after you update the code, SSH to your count-von-count machine, cd to the repository folder, pull the latest code, and then run `sudo ./lib/scripts/reload.sh`
+   next time after you update the code, SSH to your count-von-count machine, cd to the repository folder, pull the latest code, and then run `sudo ./lib/scripts/reload.sh`
 
-*Udi: I'm not sure I understand - you mean you can do remote deployment using Capistrano or local deployment with shell script? If so I would give it such titles - "remote deployment" / "local deployment", and explain why you may choose one over the other...*  
 
 
 ************************************************************************
@@ -54,22 +73,46 @@ to configure what gets count and how, simply edit the `config/voncount.config` f
 the file is written in standart JSON notation.
 for most use-cases you won't even need to write code!
 
-We'll show here some examples that covers all the different options the system support. most of them are real life examples taken from our production environment. but first lets describe our domain to get in context - 
+We'll show here some examples that covers all the different options the system support. most of them are real life examples taken from our production environment. 
 
-At [FTBpro](https://www.ftbpro.com) we have `posts`, `users`, `leagues`, and `teams`. 
-each `post` is written by a `user` who is the author, and the post "belongs" to several `teams` and `leagues`.
+but first lets start with a general example for the most basic use case:
 
+```JSON
+{
+  "<ACTION>": {
+    "<OBJECT>": [
+      {
+        "id": "<ID>",
+        "count": "<COUNTER>"
+      }
+    ]
+  }
+}
+````
+with this config file, we can make a call to ```http://my-von-count.com/<ACTION>?<ID>=1234```, which will result in having a `<OBJECT>_<ID>` key in our redis DB, with value `{ <COUNTER>: 1 }`
+
+making the same call again, will result in changing the value of `<OBJECT>_<ID>` to `{ <COUNTER>: 2 }`
+
+Ok, so that was probably a bit vague, lets look at some concrete examples:
+to get you in context, here is a short description of our domain - 
+
+At [FTBpro](https://www.ftbpro.com) we have `posts`, `users`, and `teams`. 
+each `post` is written by a `user` who is the author, and the post "belongs" to several `teams`.
 
 1. ###simple count - post read
-   ~~~
-{
-  "reads": {
-    "User": [
-      {
-        "id": "user",
-        "count": "reads"
-      },
-   ~~~
+   when a `post` gets read, we want to increase a counter for the post's `author` (which is a `user`), so we know how many reads that user got. here is the config file:
+   ```JSON
+   {
+     "reads": {
+       "User": [
+         {
+           "id": "author",
+           "count": "reads_got"
+         }
+       ]
+     }
+   }
+   ```
 
    the top most level of the configuration JSON keys is the action type that we want to count - `reads`.
    
@@ -79,71 +122,86 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    
    `count` is what we count/increase.
 
-   so, with the above configuration, if we make a call to http://my-von-count.com/reads?user=1234 then in the DB we'll have a key `User_1234` with value ``` { reads: 1 } ```
+   so, with the above configuration, if we make a call to http://my-von-count.com/reads?author=1234 then in the DB we'll have a key `User_1234` with value ``` { reads: 1 } ```
    
-   **Notice** - the value of the action `reads` is a hash, and the value of the object `user` is an array of hashes.
+   Compared to the general example: 
+      * `<ACTION>`  = `reads`
+      * `<OBJECT>`  = `User`
+      * `<ID>`      = `author`
+      * `<COUNTER>` = `reads_got`
+     
+   So given a `reads` `<ACTION>`, the `reads_got` `<COUNTER>` of the `User` `<OBJECT>` with `<ID>` equals to `author`'s value, will be increase by one.
+   
+   **Notice** - in the config JSON, the value of `<ACTION>` (`reads`) is a hash, and the value of the `<OBJECT>` (`user`) is an array of hashes.
    
 2. ###simple count - multiple objects of the same type
-   ~~~
-{
-  "reads": {
-    "User": [
-      {
-        "id": "user",
-        "count": "reads"
-      },
-      {
-        "id": "author",
-        "count": "reads_got"
-      }
-    ],
-   ~~~
-   
-   whenever a post get reads, we also want to increase the number of reads the author of the post got.
-   the author is also a `User` so we define it under the already existing `User` object.
+   now lets also count how many posts a user has read.
 
-   the author's id is defined in the query string params as `author` and for him we count `reads_got`,
-   so after a call to http://my-von-count.com/reads?user=1234&author=5678 our DB will look like:
+   ```JSON
+   {
+     "reads": {
+       "User": [
+         {
+           "id": "author",
+           "count": "reads_got"
+         },
+         {
+           "id": "user",
+           "count": "reads"
+         }
+       ]
+     }
+   }
+   ```
+  
+   the 'reading' user is also a `User` so we define it under the already existing `User` object.
+
+   the user's id is defined in the query string params as the `user` parameter and for him we count `reads`,
+   so after a call to http://my-von-count.com/reads?author=1234&user=5678 our DB will look like:
    
-   >User_1234: { reads: 2 }
+   >User_1234: { reads_got: 2 }
    >
-   >User_5678: { reads_got: 1 }
+   >User_5678: { reads: 1 }
    
 3. ###simple count - multiple objects of different types
-   ~~~
-   {
-  "reads": {
-    "User": [
-      {
-        "id": "user",
-        "count": "reads"
-      },
-      {
-        "id": "author",
-        "count": "reads_got"
-      }
-    ],
-    "Post": [
-      {
-        "id": "post",
-        "count": "reads"
-      }
-    ],
-   ~~~
-   
    We also want to know how many `reads` each `Post` received, so we add the above configuration for `Post` object under the `reads` action, and we add a 'post' id to the query string parameters. 
+
+   ```JSON
+   {
+      "reads": {
+         "User": [
+            {
+              "id": "author",
+              "count": "reads_got"
+            },
+            {
+              "id": "user",
+              "count": "reads"
+            }
+         ],
+         "Post": [
+            {
+              "id": "post",
+              "count": "reads"
+            }
+         ]
+      }
+   }
+   ```
    
    After a call to http://my-von-count.com/reads?user=1234&author=5678&post=888, thats what we'll have in the DB:
    
-   >User_1234: { reads: 2 }
+   >User_1234: { reads_got: 3 }
    >
-   >User_5678: { reads_got: 1 }
+   >User_5678: { reads: 2 }
    >
    >Post_888:  { reads: 1 }
    
    
 4. ###simple count - object with multiple IDs
-   ~~~
+   At [FTBpro](https://www.ftbpro.com) we are doing daily analytics, so for each `user` we want to know how many posts he read in each day.
+
+   ```JSON
    {
      "reads": {
       .
@@ -161,21 +219,19 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
               "expire": 1209600
            }
        ],   
-   ~~~
+   ```
    
-   At [FTBpro](https://www.ftbpro.com) we are doing daily analytics, so for each `user` we want to know how many posts he read in each day.
-   
-   The 'ID' of the `UserDaily` object is an **array**, and is composed of 4 parameters, so after a call to
-   http://my-von-count.com/reads?user=1234, the DB will have the following key-value 
-   >UserDaily_1234_28_11_2013: { reads: 1 }
+   The `<ID>` of the `UserDaily` object is an **array**, and is composed of 4 parameters, so after a call to
+   http://my-von-count.com/reads?user=5678, the DB will have the following key-value 
+   >UserDaily_5678_28_11_2013: { reads: 1 }
    
    
-   **WAIT A SECOND!** the query string contains only the `user` parameter, where are the other 3 parameters come from?!?
+   **WAIT A SECOND!** the query string contains only the `user` parameter, where does the other 3 parameters (`day`, `month`, `year`) come from?!?
    
 
    Built-In System Parameters
    ---------------------------
-   The following parameters are provided by the system, out-of-the-box, and you can use them for objects IDs or for custom function parameters (will be described later)
+   The following parameters are provided by the system, out-of-the-box, and you can use them for objects `<ID>`, (example #4), for `<COUNTER>` values (example #5), and custom function parameters (examples #7)
 
    | Parameter Name | Description                                                          |
    |----------------|----------------------------------------------------------------------|

@@ -1,15 +1,6 @@
 local redis = require "resty.redis"
 local utils = {}
 
-function utils:getCountry()
-  if geodb then
-    local country = geodb:query_by_addr(ngx.var.remote_addr, "id")
-    return geoip.code_by_id(country) or "--"
-  else
-    return "--"
-  end
-end
-
 function utils:normalizeKeys(tbl)
   local normalized = {}
   for k, v in pairs(tbl) do

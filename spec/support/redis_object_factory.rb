@@ -32,4 +32,12 @@ class RedisObjectFactory
     set = Hash.new(0)
     set.merge(Hash[*$redis.zrange(key, 0, -1, withscores: true).flatten])
   end
+
+  def should_plus_1(key)
+    data[key].to_i.should == initial_data[key].to_i + 1
+  end
+
+  def should_minus_1(key)
+     data[key].to_i.should == initial_data[key].to_i - 1
+  end
 end

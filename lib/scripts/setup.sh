@@ -7,6 +7,6 @@ ln -sf $DEPLOY_TO/ $NGINX_DIR/count-von-count
 mkdir -p $NGINX_DIR/conf/include
 ln -sf $DEPLOY_TO/config/voncount.nginx.conf $NGINX_DIR/conf/include/voncount.conf
 service redis-server start
-./reload.sh
+$DEPLOY_TO/lib/scripts/reload.sh
 $NGINX_DIR/sbin/nginx
 

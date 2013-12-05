@@ -1,13 +1,23 @@
 DEPLOY_TO='/home/deploy/count-von-count/current'
 NGINX_DIR="/usr/local/openresty/nginx"
 USER=$(whoami)
-PATH=$NGINX_DIR/sbin:$PATH
 
 chown -R $USER:$USER $NGINX_DIR
-export PATH
 ln -sf $DEPLOY_TO/ $NGINX_DIR/count-von-count
 mkdir -p $NGINX_DIR/conf/include
 ln -sf $DEPLOY_TO/config/voncount.nginx.conf $NGINX_DIR/conf/include/voncount.conf
 service redis-server start
-nginx
+$DEPLOY_TO/lib/scripts/reload.sh
+$NGINX_DIR/sbin/nginx
 
+if ps aux | grep nginx | grep master > /dev/null ; then
+	echo ">>> nginx is running"
+else
+	echo "ERROR: nginx is not running"
+fi
+
+if ps aux | grep redis-server | grep -v 'grep' > /dev/null ; then
+	echo ">>> redis-server is running"
+else
+	echo "ERROR: redis-server is not running"
+fi

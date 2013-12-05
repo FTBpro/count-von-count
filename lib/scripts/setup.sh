@@ -10,3 +10,14 @@ service redis-server start
 $DEPLOY_TO/lib/scripts/reload.sh
 $NGINX_DIR/sbin/nginx
 
+if ps aux | grep nginx | grep master > /dev/null ; then
+	echo ">>> nginx is running"
+else
+	echo "ERROR: nginx is not running"
+fi
+
+if ps aux | grep redis-server | grep -v 'grep' > /dev/null ; then
+	echo ">>> redis-server is running"
+else
+	echo "ERROR: redis-server is not running"
+fi

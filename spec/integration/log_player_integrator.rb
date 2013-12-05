@@ -1,14 +1,14 @@
 require 'ruby-debug'
 Spec::Runner.configure do |config|
   config.before(:all) do
-    $redis.flushdb
-    $log_player_redis.flushdb
-    ScriptLoader.set_config
-    ScriptLoader.clean_access_log
-    ScriptLoader.restart_nginx
+    # $redis.flushdb
+    # $log_player_redis.flushdb
+    # ScriptLoader.set_config
+    # ScriptLoader.clean_access_log
+    # ScriptLoader.restart_nginx
   end
   config.after(:all) do
-    compare_log_player_values_to_real_time_values
+    #compare_log_player_values_to_real_time_values
   end
 
   def compare_log_player_values_to_real_time_values

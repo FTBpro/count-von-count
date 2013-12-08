@@ -229,26 +229,46 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    **WAIT A SECOND!** the query string contains only the `user` parameter, where does the other 3 parameters (`day`, `month`, `year`) come from?!?
    
 
-   Built-In System Parameters
-   ---------------------------
-   The following parameters are provided by the system, out-of-the-box, and you can use them for objects `<ID>`, (example #4), for `<COUNTER>` values (example #5), and custom function parameters (examples #7)
-
+   Request Metadata Parameters Plugins
+   -----------------------------------
+   Sometimes there is need that the key names will consist data that is not part of the request arguments, but is based on the request metadata. Currently, we support 2 types this cases: date_time metadata paramerters and country parameter.    
+   The Request Metadata Parameters works a plugin mechanisem. Enabling/disabling plugins can be done by adding/removing the plugin name in `lib/nginx/request_metadata_parameters_plugins/registered_plugins.lua'. Let's dicuss the default plugins which come out of the box.
+   
+   ## DateTime Plugin
+   
    | Parameter Name | Description                                                          |
    |----------------|----------------------------------------------------------------------|
-   | *action*       | name of the action you are counting, e.g. `reads` in above examples. |
    | *day*          | current day of the month                                             |
    | *yday*         | day index of the year (out of 365)                                   |
    | *week*         | week index of the year (out of 52). week start and end on Mondays.   |
    | *month*        | month index of the year (out of 12)                                  |
    | *year*         | in 4 digits format                                                   |
-   | *country*      | ONLY IF GEOIP PLUGIN IS INSTALLED - 2-letters country code according to the IP from which the call was made. |
 
+  ### Adding custom date_time paramaeters
+  
+  The plugin comes with the arguments that we think are needed. If you want to add your parameters just update `lib/nginx/request_metadata_parameters_plugins/date_time.lua' with the relevant time formation.
    
+   ## Country Plugin
+   
+   | Parameter Name | Description                                                          |
+   |----------------|----------------------------------------------------------------------|
+   | *country*      | 2-letters country code according to the IP from which the call       |
+   
+   
+  ### Prerequisites
+   
+   This plugin uses [lua-geoip](https://github.com/agladysh/lua-geoip) and thus the following steps are necessary for this plugin:
+   
+   1. Install LuaRocks (apt-get install luarocks)
+   2. Install lua-geoip (luarocks install lua-geoip)
+   3. Install Geoip (sudo apt-get install geoip-bin geoip-database libgeoip-dev)
+   4. Make sure to update the geoip.dat. You can use the provided `lib\scripts\update-geoip.sh' script for it. Just add it to your crontab and schedule it to execute at night time.
+   
+  ### Customize the Country plugin
 
+  You make your changes to `lib/nginx/request_metadata_parameters_plugins/date_time.lua`. For example, if you want to save the name of the country insted of it code, you can use `geoip.name_by_id(id)` method instad of `geoip.code_by_id(id)`
 
-
-
-
+<TODO> Decide if its enabled by default
 
 Pitfalls & Gotcha
 -------------------

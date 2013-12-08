@@ -17,6 +17,7 @@ Here are some ways that we use in [FTBPro.com](https://www.ftbpro.com)
 Architecture
 ============
 
+![alt tag](https://s3-us-west-2.amazonaws.com/action-counter-logs/Count-von-Count.png)
 
 **__NOTICE - if you don't use the default folders as in the instructions, you'll need to edit and change `deploy.rb`, `setup.sh` and  `reload.sh`__**
 

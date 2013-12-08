@@ -51,13 +51,17 @@ end
 # These instructions should self-destruct in 10 seconds.  If they don't, feel
 # free to delete them.
 
+def spec_config
+  @spec_config ||= YAML.load_file('spec/config/spec_config.yml') rescue {}
+end
 
+spec_config["redis_port"]
 lib = File.expand_path('../../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
-$redis = Redis.new(host: HOST, port: "6379")
-$log_player_redis = Redis.new(host: HOST, port: "6379", db: 1)
-ScriptLoader.load(true)
+$redis = Redis.new(host: HOST, port: spec_config["redis_port"], db: spec_config["redis_db"])
+$log_player_redis = Redis.new(host: HOST, port: spec_config["redis_port"] , db: spec_config["log_player_redis_db"])
+ScriptLoader.load
 RedisObjectFactory.redis = $redis
 
 def create(type, ids = nil)

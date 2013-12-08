@@ -1,14 +1,20 @@
 require 'ruby-debug'
+require 'spec_helper'
+
+def self.spec_config
+  @@spec_config ||= YAML.load_file('spec/config/spec_config.yml') rescue {}
+end
+
 Spec::Runner.configure do |config|
-  config.before(:all) do
-    # $redis.flushdb
-    # $log_player_redis.flushdb
-    # ScriptLoader.set_config
-    # ScriptLoader.clean_access_log
-    # ScriptLoader.restart_nginx
-  end
-  config.after(:all) do
-    #compare_log_player_values_to_real_time_values
+  if self.spec_config["log_player_integration"]
+    config.before(:all) do
+      flush_keys
+      ScriptLoader.clean_access_log
+      ScriptLoader.restart_nginx
+    end
+    config.after(:all) do
+      compare_log_player_values_to_real_time_values
+    end
   end
 
   def compare_log_player_values_to_real_time_values
@@ -16,11 +22,17 @@ Spec::Runner.configure do |config|
     $redis.keys.each do |key|
       if !unrelevant_keys.include?(key)
         if !compare_value(key)
-          p key
-          true.should be false
+          raise RSpec::Expectations::ExpectationNotMetError, "Log Player Intregration: difference in #{key}"
         end
       end
     end
+  end
+
+  def flush_keys
+    cache_keys = $redis.keys "*"
+    $redis.del cache_keys.reject { |key| key.match(/^von_count_config/)} if cache_keys.any?
+    cache_keys = $log_player_redis.keys "*"
+    $log_player_redis.del cache_keys.reject { |key| key.match(/^von_count_config/)} if cache_keys.any?
   end
 
   def unrelevant_keys
@@ -39,6 +51,8 @@ Spec::Runner.configure do |config|
   end
 
   def run_log_player
-    `/usr/local/openresty/lua/bin/lua /usr/local/openresty/nginx/count-von-count/lib/log_player.lua /usr/local/openresty/nginx/logs/access.log #{ScriptLoader.log_player_reads_hash} #{ScriptLoader.log_player_mobile_hash} 1`
+    `lua /usr/local/openresty/nginx/count-von-count/lib/log_player.lua /usr/local/openresty/nginx/logs/access.log #{spec_config["log_player_redis_db"]}`
   end
+
+
 end

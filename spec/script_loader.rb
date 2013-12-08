@@ -1,12 +1,13 @@
 require 'yaml'
 require 'json'
+require 'ruby-debug'
 class ScriptLoader
   class << self
     attr_accessor :log_player_reads_hash
   end
-  def self.load(test_env = false)
+  def self.load
     set_config
-    load_scripts_to_log_player_test_db if test_env
+    load_scripts_to_log_player_test_db if self.spec_config["log_player_integration"]
     File.open("/usr/local/openresty/nginx/conf/vars.conf", 'w') { |f| f.write(<<-VARS
       set $redis_counter_hash #{von_count_script_hash};
       VARS
@@ -20,15 +21,13 @@ class ScriptLoader
 
 
   def self.load_scripts_to_log_player_test_db
-    @log_player_reads_hash ||= `redis-cli -n 1 SCRIPT LOAD "$(cat "lib/redis/voncount.lua")"`.strip
+    @log_player_reads_hash ||= `redis-cli -n #{self.spec_config["log_player_redis_db"]} SCRIPT LOAD "$(cat "lib/redis/voncount.lua")"`.strip
   end
 
   def self.set_config
     redis = Redis.new(host: HOST, port: "6379")
     config = `cat spec/config/voncount.config | tr -d '\n' | tr -d ' '`
     redis.set("von_count_config_live", config)
-    log_player_redis = Redis.new(host: HOST, port: "6379", db: 1)
-    log_player_redis.set("von_count_config_record", config)
   end
 
   def self.restart_nginx
@@ -44,4 +43,7 @@ class ScriptLoader
     @@settings ||= YAML.load_file("config/personal.yml") rescue {}
   end
 
+  def self.spec_config
+    @@spec_config ||= YAML.load_file('spec/config/spec_config.yml') rescue {}
+  end
 end

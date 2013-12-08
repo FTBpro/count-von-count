@@ -6,7 +6,17 @@
 
 Count Von Count
 =================
-      ![alt tag](http://1.bp.blogspot.com/_zCGbA5Pv0PI/TGj5YnGEDDI/AAAAAAAADD8/ipYKIgc7Jg0/s400/CountVonCount.jpg)
+![alt tag](http://1.bp.blogspot.com/_zCGbA5Pv0PI/TGj5YnGEDDI/AAAAAAAADD8/ipYKIgc7Jg0/s400/CountVonCount.jpg)
+
+Count-von-Count is a counting system that was developed in [FTBPro.com](https://www.ftbpro.com). It can be used to count any action (i.e. number of readers of an article, number of vistiors to a website per day/hour/week) and evan to gather internal statistics such as load time of different clients. 
+
+Here are some ways that we use in [FTBPro.com](https://www.ftbpro.com)
+
+![Some Counters](http://media.tumblr.com/c0508089f2e631613bff664a94599d10/tumblr_inline_mwtdlnw5d21s9eocl.png)
+
+Architecture
+============
+
 
 **__NOTICE - if you don't use the default folders as in the instructions, you'll need to edit and change `deploy.rb`, `setup.sh` and  `reload.sh`__**
 

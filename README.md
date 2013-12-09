@@ -25,16 +25,7 @@ With Count-von-Count you can:
 4. Store anykind of Leaderboard, such as top writers, top readers, top countries your visitors are coming from.
 5. Anything that can be counted!
 
-Architecture
-============
-
-Count-von-Count is based on OpenResty, a Nginx based web service, bundled with some useful 3rd party modules. It turns an nginx web server into a powerful web app server using scripts written in Lua programming language. It still has the advantage of the non-blocking I/O but also has the ability to communicate with remote clients such as MySQL, Memcached and also Redis. We are using Redis as our database for this project, leveraging its scalability and reliability.
-
-![alt tag](https://s3-us-west-2.amazonaws.com/action-counter-logs/Count-von-Count.png)
-
-**__NOTICE - if you don't use the default folders as in the instructions, you'll need to edit and change `deploy.rb`, `setup.sh` and  `reload.sh`__**
-
-Setting up a server
+Installation
 ---------------------------------
 1. install redis-server (apt-get install redis-server)
 2. download and install [OpenResty](http://openresty.org/#Installation). use default settings and directory structure!
@@ -52,7 +43,19 @@ Setting up a server
       .
       .
       .
-   ```
+   ``` 
+5. Script Loader...
+
+Architecture
+============
+
+Count-von-Count is based on OpenResty, a Nginx based web service, bundled with some useful 3rd party modules. It turns an nginx web server into a powerful web app server using scripts written in Lua programming language. It still has the advantage of the non-blocking I/O but also has the ability to communicate with remote clients such as MySQL, Memcached and also Redis. We are using Redis as our database for this project, leveraging its scalability and reliability.
+
+![alt tag](https://s3-us-west-2.amazonaws.com/action-counter-logs/Count-von-Count.png)
+
+**__NOTICE - if you don't use the default folders as in the instructions, you'll need to edit and change `deploy.rb`, `setup.sh` and  `reload.sh`__**
+
+
 
 Deployment
 -----------------

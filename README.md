@@ -8,14 +8,25 @@ Count Von Count
 =================
 ![alt tag](http://1.bp.blogspot.com/_zCGbA5Pv0PI/TGj5YnGEDDI/AAAAAAAADD8/ipYKIgc7Jg0/s400/CountVonCount.jpg)
 
-Count-von-Count is a counting system that was developed in [FTBPro.com](https://www.ftbpro.com). It can be used to count any action (i.e. number of readers of an article, number of vistiors to a website per day/hour/week) and evan to gather internal statistics such as load time of different clients. 
+Count-von-Count is a counting system that was developed in [FTBPro.com](https://www.ftbpro.com). It can be used to count any action (i.e. number of readers of an article, number of vistiors to a website per day/hour/week) or **metrics**.
+It is based on Nginx and Redis, delivering a scalable and **LIVE** system.
 
+What you can do with it?
+========================
 Here are some ways that we use in [FTBPro.com](https://www.ftbpro.com)
-
 ![Some Counters](http://media.tumblr.com/c0508089f2e631613bff664a94599d10/tumblr_inline_mwtdlnw5d21s9eocl.png)
+
+With Count-von-Count you can:
+1. Count number of visitors to a site/page.
+2. Track number of clicks hourly/daily/weekly/yearly etc...
+3. Measure load time in any client and quicly see the slowest clients.
+4. Store anykind of Leaderboard, such as top writers, top readers, top countries your visitors are coming from.
+5. Anything that can be counted!
 
 Architecture
 ============
+
+Count-von-Count is based on OpenResty, a Nginx based web service, bundled with some useful 3rd party modules. It turns an nginx web server into a powerful web app server using scripts written in Lua programming language. It still has the advantage of the non-blocking I/O but also has the ability to communicate with remote clients such as MySQL, Memcached and also Redis. We are using Redis as our database for this project, leveraging its scalability and reliability.
 
 ![alt tag](https://s3-us-west-2.amazonaws.com/action-counter-logs/Count-von-Count.png)
 

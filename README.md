@@ -46,14 +46,6 @@ Installation
    ``` 
 5. Script Loader...
 
-Architecture
-============
-
-Count-von-Count is based on OpenResty, a Nginx based web service, bundled with some useful 3rd party modules. It turns an nginx web server into a powerful web app server using scripts written in Lua programming language. It still has the advantage of the non-blocking I/O but also has the ability to communicate with remote clients such as MySQL, Memcached and also Redis. We are using Redis as our database for this project, leveraging its scalability and reliability.
-
-![alt tag](https://s3-us-west-2.amazonaws.com/action-counter-logs/Count-von-Count.png)
-
-**__NOTICE - if you don't use the default folders as in the instructions, you'll need to edit and change `deploy.rb`, `setup.sh` and  `reload.sh`__**
 
 
 
@@ -71,7 +63,6 @@ provided are 2 options:
    use `cap deploy` to deploy master branch to production.
 
    use `cap deploy -S env=qa -S branch=bigbird` if you want to deploy to a different environment and/or a different branch.
-
 
    2. ###local deployment (using shell scripts)
    SSH into your count-von-count server.
@@ -96,7 +87,7 @@ provided are 2 options:
 
 Counting - Its easy as 1,2,3
 ------------------------------
-to configure what gets count and how, simply edit the `config/voncount.config` file.
+To configure what gets count and how, simply edit the `config/voncount.config` file.
 the file is written in standart JSON notation.
 for most use-cases you won't even need to write code!
 
@@ -253,8 +244,9 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    >UserDaily_5678_28_11_2013: { reads: 1 }
    
    
-   **WAIT A SECOND!** the query string contains only the `user` parameter, where does the other 3 parameters (`day`, `month`, `year`) come from?!?
+   **WAIT A SECOND!** the query string contains only the `user` parameter, where does the other 3 parameters (`day`, `month`, `year`) come from?!? Read more about it on Request Metadata Parameters Plugins.
    
+  
 
    Request Metadata Parameters Plugins
    -----------------------------------
@@ -296,6 +288,16 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
   You make your changes to `lib/nginx/request_metadata_parameters_plugins/date_time.lua`. For example, if you want to save the name of the country insted of it code, you can use `geoip.name_by_id(id)` method instad of `geoip.code_by_id(id)`
 
 <TODO> Decide if its enabled by default
+
+
+Architecture
+============
+
+Count-von-Count is based on OpenResty, a Nginx based web service, bundled with some useful 3rd party modules. It turns an nginx web server into a powerful web app server using scripts written in Lua programming language. It still has the advantage of the non-blocking I/O but also has the ability to communicate with remote clients such as MySQL, Memcached and also Redis. We are using Redis as our database for this project, leveraging its scalability and reliability.
+
+![alt tag](https://s3-us-west-2.amazonaws.com/action-counter-logs/Count-von-Count.png)
+
+**__NOTICE - if you don't use the default folders as in the instructions, you'll need to edit and change `deploy.rb`, `setup.sh` and  `reload.sh`__**
 
 
 Log Player

@@ -21,7 +21,7 @@ With Count-von-Count you can:
 
 1. Count number of visitors to a site/page.
 2. Track number of clicks hourly/daily/weekly/yearly etc...
-3. Measure load time in any client and quicly see the slowest clients.
+3. Measure load time in any client and quickly see the slowest clients.
 4. Store anykind of Leaderboard, such as top writers, top readers, top countries your visitors are coming from.
 5. Anything that can be counted!
 
@@ -44,7 +44,7 @@ Installation
       .
       .
    ``` 
-5. Script Loader...
+5. Script Loader... *Shai's Notes:* Ron, the ScriptLoader is used only for locally running rspec, i think this is a very advanced use case, so we probably should explain it somewhere else.
 
 
 
@@ -244,9 +244,37 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    >UserDaily_5678_28_11_2013: { reads: 1 }
    
    
-   **WAIT A SECOND!** the query string contains only the `user` parameter, where does the other 3 parameters (`day`, `month`, `year`) come from?!? Read more about it on Request Metadata Parameters Plugins.
+   **WAIT A SECOND!** the query string contains only the `user` parameter, where does the other 3 parameters (`day`, `month`, `year`) come from?!? Read more about it on [Request Metadata Parameters Plugins](#request-metadata-parameters-plugins).
    
+
+5. ###simple count - parameter as `<COUNTER>` name
+   we can use parameters to determine the `<COUNTER>` name. in that way we can dynamically determine what gets count.
+   in this example, we count for an `author` how many reads he had from each country (every week).
+
+   ```JSON
+   {
+     "reads": {
+      .
+      .
+      .
+      "UserWeeklyDemographics": [
+        {
+          "id": [
+            "author",
+            "week",
+            "year"
+          ],
+          "count": "{country}"
+        }
+       ]      
+   ```
+   You can see we are using the `week` and `year` parameters for the `<ID>` as in the example above, and also the `country` parameter as the `<COUNTER>` name. 
+   
+   the `country` parameter is explained under [Request Metadata Parameters Plugins](#request-metadata-parameters-plugins).
+
+  \*Its possible to use a parameter name that is passed in the request query string (e.g. `author`, `post`, etc...), and not only the Metadata Parameters!
   
+  \* `<COUNTER>` names can be be more complex. lets say we have a `registered` parameter in the request query string, so we can use - `"count": "from_{country}_{registered}"`
 
    Request Metadata Parameters Plugins
    -----------------------------------

@@ -5,8 +5,8 @@ local args = ngx.req.get_query_args()
 args = utils:normalizeKeys(args)
 args["action"] = ngx.var.action
 
-for i = 1, #additional_args_plugins do
-  _plugin = require (additional_args_plugins[i])
+for i = 1, #request_metadata_parameters_plugins do
+  _plugin = require (request_metadata_parameters_plugins[i])
   _plugin:AddtoArgsFromNginx(args)
 end
 

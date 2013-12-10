@@ -20,9 +20,19 @@ end
 function utils:initRedis()
   local red = redis:new()
   red:set_timeout(3000) -- 3 sec
-  local ok, err = red:connect("127.0.0.1", 6379)
+  local ok, err = red:connect(SYSTEM_CONFIG["redis_host"], SYSTEM_CONFIG["redis_port"])
   if not ok then utils:logErrorAndExit("Error connecting to redis: ".. err) end
   return red
+end
+
+function utils:loadSystemConfig()
+  config_path = "/usr/local/openresty/nginx/Count-von-Count/config/system.config"
+  SYSTEM_CONFIG = {}
+  for line in io.lines(config_path) do
+    for i,j in line:gmatch("(%S+):(%S+)") do
+      SYSTEM_CONFIG[i] = j
+    end
+  end
 end
 
 function utils:logErrorAndExit(err)

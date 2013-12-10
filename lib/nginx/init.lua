@@ -1,5 +1,8 @@
-additional_args_plugins = require "additonal_args_supported_plugins"
-for i = 1, #additional_args_plugins do
-  _plugin = require (additional_args_plugins[i])
+request_metadata_parameters_plugins = require "registered_plugins"
+for i = 1, #request_metadata_parameters_plugins do
+  _plugin = require (request_metadata_parameters_plugins[i])
   _plugin:init()
 end
+
+local utils = require "utils"
+utils:loadSystemConfig()

@@ -1,21 +1,21 @@
-local date_and_time = {}
+local date_time = {}
 local MON={Jan=1,Feb=2,Mar=3,Apr=4,May=5,Jun=6,Jul=7,Aug=8,Sep=9,Oct=10,Nov=11,Dec=12}
 
-function date_and_time:init()
+function date_time:init()
 end
 
 
-function date_and_time:AddtoArgsFromNginx(args)
-  date_and_time:fromString(args, ngx.req.start_time())
+function date_time:AddtoArgsFromNginx(args)
+  date_time:fromString(args, ngx.req.start_time())
 end
 
-function date_and_time:AddToArgsFromLogPlayer(args, line)
+function date_time:AddToArgsFromLogPlayer(args, line)
   ip, request_time, query_args = line:match("^([^%s]+).*%[(.*)].*GET%s*(.*)%s* HTTP")
-  date_and_time:fromString(args,
-                           date_and_time:parseDateFromString(request_time))
+  date_time:fromString(args,
+                       date_time:parseDateFromString(request_time))
 end
 
-function date_and_time:fromString(args, str)
+function date_time:fromString(args, str)
   args["day"] = os.date("%d", str)
   args["yday"] = os.date("%j", str)
   args["week"] = os.date("%W", str)
@@ -28,7 +28,7 @@ function date_and_time:fromString(args, str)
   end
 end
 
-function date_and_time:parseDateFromString(date)
+function date_time:parseDateFromString(date)
   -- 28/Oct/2013:10:41:15 +0000
   print(date)
   local p ="(%d+)/(%a+)/(%d+):(%d+):(%d+):(%d+)"
@@ -37,4 +37,4 @@ function date_and_time:parseDateFromString(date)
   return os.time({day=day,month=month,year=year,hour=hour,min=min,sec=sec})
 end
 
-return date_and_time
+return date_time

@@ -1,7 +1,7 @@
 package.cpath = "/usr/local/openresty/lualib/?.so;" .. package.cpath
-package.path = "/usr/local/openresty/nginx/Count-von-Count/lib/nginx/additional_args_plugins/?.lua;" .. package.path
+package.path = "/usr/local/openresty/nginx/Count-von-Count/lib/nginx/request_metadata_parameters_plugins/?.lua;" .. package.path
 local logFilePath = arg[1]
-local database_index = arg[2] or 0
+
 local cjson = require "cjson"
 
 function setConfig()
@@ -12,7 +12,6 @@ function setConfig()
   os.execute("redis-cli -n " .. database_index .. " set von_count_config_record " .. conf)
 end
 
-local redisScriptHash
 function getRedisCountingHash()
   vars_conf_path = "/usr/local/openresty/nginx/conf/vars.conf"
   for line in io.lines(vars_conf_path) do
@@ -48,17 +47,17 @@ function parseArgs(line)
   args = parseQueryArgs(query_args)
   args["action"] = query_args:match("%/(.*)%?")
 
-  for i = 1, #additional_args_plugins do
-  _plugin = require (additional_args_plugins[i])
-  _plugin:AddToArgsFromLogPlayer(args, line)
+  for i = 1, #request_metadata_parameters_plugins do
+    _plugin = require (request_metadata_parameters_plugins[i])
+    _plugin:AddToArgsFromLogPlayer(args, line)
   end
   return args
 end
 
 function initAdditionalArgsPlugins()
-  additional_args_plugins = require "additonal_args_supported_plugins"
-  for i = 1, #additional_args_plugins do
-    _plugin = require (additional_args_plugins[i])
+  request_metadata_parameters_plugins = require "registered_plugins"
+  for i = 1, #request_metadata_parameters_plugins do
+    _plugin = require (request_metadata_parameters_plugins[i])
     _plugin:init()
   end
 end
@@ -69,7 +68,20 @@ function playLine(line)
   os.execute("redis-cli -n " .. database_index .. " evalsha " .. redisScriptHash .. " 2 args mode " .. args_json .. " record")
 end
 
+function loadSystemConfig()
+  config_path = "/usr/local/openresty/nginx/Count-von-Count/config/system.config"
+  SYSTEM_CONFIG = {}
+  for line in io.lines(config_path) do
+    for i,j in line:gmatch("(%S+):(%S+)") do
+      SYSTEM_CONFIG[i] = j
+    end
+  end
+end
+
 -------------------------------
+
+loadSystemConfig()
+database_index = arg[2] or SYSTEM_CONFIG["redis_db"]
 setConfig()
 getRedisCountingHash()
 

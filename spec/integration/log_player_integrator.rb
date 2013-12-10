@@ -30,9 +30,11 @@ Spec::Runner.configure do |config|
 
   def flush_keys
     cache_keys = $redis.keys "*"
-    $redis.del cache_keys.reject { |key| key.match(/^von_count_config/)} if cache_keys.any?
+    cache_keys = cache_keys.reject { |key| key.match(/^von_count_config/)}
+    $redis.del(cache_keys) if cache_keys.any?
     cache_keys = $log_player_redis.keys "*"
-    $log_player_redis.del cache_keys.reject { |key| key.match(/^von_count_config/)} if cache_keys.any?
+    cache_keys = cache_keys.reject { |key| key.match(/^von_count_config/)}
+    $log_player_redis.del(cache_keys.reject { |key| key.match(/^von_count_config/)}) if cache_keys.any?
   end
 
   def unrelevant_keys

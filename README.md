@@ -1,9 +1,3 @@
-**General notes from Udi**
-1. There is absolutely no introduction as to what this project does at all. It's definitely not trivial, so it's completely mandatory. It's more important than setup notes... What's special about counting here?  You can give a few short examples to begin with, to get people interested...  
-2. I think you should pay more attention to correct capitalization in beginnings of sentences. Makes things much easier to read. Don't blame me if I didn't do the same in my comments ;)  
-3. I generally didn't comment on grammar mistakes (I did found some). I think we should do proofing after the text is more-or-less finalized? Your thoughts?
-
-
 Count Von Count
 =================
 ![alt tag](http://1.bp.blogspot.com/_zCGbA5Pv0PI/TGj5YnGEDDI/AAAAAAAADD8/ipYKIgc7Jg0/s400/CountVonCount.jpg)
@@ -26,11 +20,16 @@ With Count-von-Count you can:
 5. Anything that can be counted!
 
 Installation
----------------------------------
-1. install redis-server (apt-get install redis-server)
-2. download and install [OpenResty](http://openresty.org/#Installation). use default settings and directory structure!
-3. install git
-4. edit openresty's nginx.conf file (by default its in /usr/local/openresty/nginx/conf)
+=============
+
+Setting up the counting server
+-------------------------------
+
+1. Install redis-server (apt-get install redis-server). You can also use one of your previously installed servers.
+2. Update `config/system.config` file with the Redis server ip, port and database.
+2. Download and install [OpenResty](http://openresty.org/#Installation). use default settings and directory structure!
+3. Install git
+4. Edit openresty's nginx.conf file (by default its in /usr/local/openresty/nginx/conf)
    * add `worker_rlimit_nofile 30000;` at the top level
    * add `include /usr/local/openresty/nginx/conf/include/*;` under the 'http' section
 
@@ -44,30 +43,11 @@ Installation
       .
       .
    ``` 
-5. Script Loader... *Shai's Notes:* Ron, the ScriptLoader is used only for locally running rspec, i think this is a very advanced use case, so we probably should explain it somewhere else.
+   
+Counfiguration
+--------------
 
-
-
-
-Deployment
------------------
-provided are 2 options: 
-
-   1. ###remote deployment (using Ruby & [Capistrano](https://github.com/capistrano/capistrano))
-   If you have Ruby on your machine, you should probably use this option.
-
-   Edit `deploy.rb` file and set the correct deploy user and your servers ips in the `deploy` and `env_servers` variables.
-
-   **for the first time** run `cap deploy:setup` to bootstrap the server.
-
-   use `cap deploy` to deploy master branch to production.
-
-   use `cap deploy -S env=qa -S branch=bigbird` if you want to deploy to a different environment and/or a different branch.
-
-   2. ###local deployment (using shell scripts)
-   SSH into your count-von-count server.
-
-   **for the first time**
+**for the first time**
      * clone the git repository into your folder of choice (recommended to use our default - /home/deploy/count-von-count/current)
      * run `sudo ./lib/scripts/setup.sh`. if the last 2 output lines are
      
@@ -77,23 +57,59 @@ provided are 2 options:
        ~~~
        
        then you should be good to go.
- 
-   next time after you update the code, SSH to your count-von-count machine, cd to the repository folder, pull the latest code, and then run `sudo ./lib/scripts/reload.sh`
+       
+** Every time you change the config or Lua scripts **
+  run `sudo ./lib/scripts/reload.sh`  
 
+(OPTIONAL): Remote Deployment Using Ruby & [Capistrano](https://github.com/capistrano/capistrano)
+---------------------------------------------------------
+
+   Edit `deploy.rb` file and set the correct deploy user and your servers ips in the `deploy` and `env_servers` variables.
+
+   **for the first time** run `cap deploy:setup` to bootstrap the server.
+
+   use `cap deploy` to deploy master branch to production.
+
+   use `cap deploy -S env=qa -S branch=bigbird` if you want to deploy to a different environment and/or a different branch.
 
 
 ************************************************************************
 ************************************************************************
 
 Counting - Its easy as 1,2,3
-------------------------------
+=============================
 To configure what gets count and how, simply edit the `config/voncount.config` file.
 the file is written in standart JSON notation.
 for most use-cases you won't even need to write code!
 
 We'll show here some examples that covers all the different options the system support. most of them are real life examples taken from our production environment. 
 
-but first lets start with a general example for the most basic use case:
+But Let's start with a simple example. Say that you have a blog site and you want to count the number of reads of each blog post.
+You need to take care for 2 things:
+
+  1. In each page, load a pixel that is src is: http://<counting_server>/reads?post=3144
+  2. Set the following configration:
+
+```JSON
+{
+  "<reads>": {
+    "<Post>": [
+      {
+        "id": "post",
+        "count": "num_reads"
+      }
+    ]
+  }
+}
+````
+That's it! For each post that will be read, a redis hash with Post_<post_id> will be created, with <num_reads> key. 
+e.g, to get the number of reads of post 3144 you can execute `redis-cli hget Post_3144 num_reads`
+
+
+General Usage
+-------------
+
+Lets start with a general example for the most basic use case:
 
 ```JSON
 {

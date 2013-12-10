@@ -110,30 +110,4 @@ describe "Counting" do
       @user.should_minus_1("post_create")
     end
   end
-
-
-
-  # describe "get" do
-  #   ## Those specs are not really related to the 'Read Action', i'm just using the data from the specs above...
-  #   it "should return the data from redis for the post data" do
-  #     post_data = URI.parse("http://#{HOST}/get?key=#{@post.key}").read
-  #     rslt = JSON.parse(post_data)
-  #     rslt.should be_a(Hash)
-  #     rslt.keys.should include("reads")
-  #   end
-
-  #   it "should return the data from redis for the reading user" do
-  #     post_data = URI.parse("http://#{HOST}/get?key=#{@user.key}").read
-  #     rslt = JSON.parse(post_data)
-  #     rslt.should be_a(Hash)
-  #     rslt.keys.should include("reads")
-  #   end
-
-  #   it "should return the data from redis for the author user" do
-  #     post_data = URI.parse("http://#{HOST}/get?key=#{@author.key}").read
-  #     rslt = JSON.parse(post_data)
-  #     rslt.should be_a(Hash)
-  #     rslt.keys.should include("reads_got")
-  #   end
-  # end
 end

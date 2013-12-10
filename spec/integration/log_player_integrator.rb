@@ -53,7 +53,13 @@ Spec::Runner.configure do |config|
   end
 
   def run_log_player
-    `lua /usr/local/openresty/nginx/count-von-count/lib/log_player.lua /usr/local/openresty/nginx/logs/access.log #{spec_config["log_player_redis_db"]}`
+    `lua \
+    /usr/local/openresty/nginx/count-von-count/lib/log_player.lua \
+    /usr/local/openresty/nginx/logs/access.log \
+    #{spec_config["redis_host"]} \
+    #{spec_config["redis_port"]} \
+    #{spec_config["log_player_redis_db"]} \
+    `
   end
 
 

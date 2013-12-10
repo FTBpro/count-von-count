@@ -29,7 +29,7 @@ function utils:loadSystemConfig()
   config_path = "/usr/local/openresty/nginx/Count-von-Count/config/system.config"
   SYSTEM_CONFIG = {}
   for line in io.lines(config_path) do
-    for i,j in line:gmatch("(%S+):(%S+)") do
+    for i,j in line:gmatch("(%S+):%s*(%S+)") do
       SYSTEM_CONFIG[i] = j
     end
   end

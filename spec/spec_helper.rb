@@ -59,7 +59,7 @@ spec_config["redis_port"]
 lib = File.expand_path('../../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
-$redis = Redis.new(host: HOST, port: spec_config["redis_port"], db: spec_config["redis_db"])
+$redis = Redis.new(host: spec_config["redis_host"], port: spec_config["redis_port"], db: spec_config["redis_db"])
 $log_player_redis = Redis.new(host: HOST, port: spec_config["redis_port"] , db: spec_config["log_player_redis_db"])
 ScriptLoader.load
 RedisObjectFactory.redis = $redis

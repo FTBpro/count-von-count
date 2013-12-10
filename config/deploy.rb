@@ -64,11 +64,15 @@ namespace :redis do
   end
 end
 
+def system_config
+  @system_config ||= YAML.load_file('config/system.config') rescue {}
+end
+
 namespace :deploy do
   desc "Load the lua script to redis and saving the SHA in a file for nginx to use"
   task :load_redis_lua do
     run "sudo rm -f #{nginx_dir}/conf/include/vars.conf"
-    run "sudo echo 'set \$redis_counter_hash '$(redis-cli SCRIPT LOAD \"$(cat '#{deploy_to}/current/lib/redis/voncount.lua')\")';' > #{nginx_dir}/conf/vars.conf"
+    run "sudo echo 'set \$redis_counter_hash '$(redis-cli -h #{system_config["redis_host"]} -p #{system_config["redis_port"]} SCRIPT LOAD \"$(cat '#{deploy_to}/current/lib/redis/voncount.lua')\")';' > #{nginx_dir}/conf/vars.conf"
     run "sudo echo 'set \$redis_mobile_hash '$(redis-cli SCRIPT LOAD \"$(cat '#{deploy_to}/current/lib/redis/mobile.lua')\")';' >> #{nginx_dir}/conf/vars.conf"
     run "sudo redis-cli set von_count_config_live \"$(cat '#{deploy_to}/current/config/voncount.config' | tr -d '\n' | tr -d ' ')\""
   end

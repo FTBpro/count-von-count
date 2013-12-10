@@ -9,7 +9,11 @@ function setConfig()
   f = io.popen("cat " .. config_file .. " | tr -d '\n' | tr -d ' '")
   content = f:read('*a')
   conf = cjson.encode(content)
-  os.execute("redis-cli -n " .. database_index .. " set von_count_config_record " .. conf)
+  os.execute(redisCli() .. " set von_count_config_record " .. conf)
+end
+
+function redisCli()
+  return "redis-cli -h " .. REDIS_CONFIG["host"] .. " -p " .. REDIS_CONFIG["port"] .. " -n " .. REDIS_CONFIG["db"]
 end
 
 function getRedisCountingHash()
@@ -65,23 +69,26 @@ end
 function playLine(line)
   args = parseArgs(line)
   args_json = "'" .. cjson.encode(args) .. "'"
-  os.execute("redis-cli -n " .. database_index .. " evalsha " .. redisScriptHash .. " 2 args mode " .. args_json .. " record")
+  os.execute(redisCli() .. " evalsha " .. redisScriptHash .. " 2 args mode " .. args_json .. " record")
 end
 
 function loadSystemConfig()
   config_path = "/usr/local/openresty/nginx/Count-von-Count/config/system.config"
   SYSTEM_CONFIG = {}
   for line in io.lines(config_path) do
-    for i,j in line:gmatch("(%S+):(%S+)") do
+    for i,j in line:gmatch("(%S+):%s*(%S+)") do
       SYSTEM_CONFIG[i] = j
     end
   end
+  REDIS_CONFIG = {}
+  REDIS_CONFIG["host"] = arg[2] or SYSTEM_CONFIG["redis_host"]
+  REDIS_CONFIG["port"] = arg[3] or SYSTEM_CONFIG["redis_port"]
+  REDIS_CONFIG["db"] = arg[4] or 0
 end
 
--------------------------------
+------------------------------------
 
 loadSystemConfig()
-database_index = arg[2] or SYSTEM_CONFIG["redis_db"]
 setConfig()
 getRedisCountingHash()
 

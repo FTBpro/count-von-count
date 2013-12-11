@@ -131,7 +131,7 @@ Ok, so that was probably a bit vague, lets look at some concrete examples:
 to get you in context, here is a short description of our domain - 
 
 At [FTBpro](https://www.ftbpro.com) we have `posts`, `users`, and `teams`. 
-each `post` is written by a `user` who is the author, and the post "belongs" to several `teams`.
+each `post` is written by a `user` who is the author, and the post "belongs" to a `team`.
 
 1. ###simple count - post read
    when a `post` gets read, we want to increase a counter for the post's `author` (which is a `user`), so we know how many reads that user got. here is the config file:
@@ -223,7 +223,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    }
    ```
    
-   After a call to http://my-von-count.com/reads?user=1234&author=5678&post=888, thats what we'll have in the DB:
+   After a call to http://my-von-count.com/reads?author=1234&user=5678&post=888, thats what we'll have in the DB:
    
    >User_1234: { reads_got: 3 }
    >
@@ -263,7 +263,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    **WAIT A SECOND!** the query string contains only the `user` parameter, where does the other 3 parameters (`day`, `month`, `year`) come from?!? Read more about it on [Request Metadata Parameters Plugins](#request-metadata-parameters-plugins).
    
 
-5. ###simple count - parameter as `<COUNTER>` name
+5. ###dynamic count - parameter as `<COUNTER>` name
    we can use parameters to determine the `<COUNTER>` name. in that way we can dynamically determine what gets count.
    in this example, we count for an `author` how many reads he had from each country (every week).
 
@@ -288,14 +288,217 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    
    the `country` parameter is explained under [Request Metadata Parameters Plugins](#request-metadata-parameters-plugins).
 
+   the data will be something like - 
+   >UserWeeklyDemographics_5678_42_2013: { US: 5, UK: 8, FR: 1 }
+
   \*Its possible to use a parameter name that is passed in the request query string (e.g. `author`, `post`, etc...), and not only the Metadata Parameters!
   
   \* `<COUNTER>` names can be be more complex. lets say we have a `registered` parameter in the request query string, so we can use - `"count": "from_{country}_{registered}"`
 
+   
+6. ###simple count - existing objects, different actions
+   so far we've seen examples related to posts reads, but users can also comment on posts. 
+   very similar to the `reads` action, we also want to count:
+     * for each `author` - how many comments he received on his posts
+     * for each `user` - how many comments he did
+     * for each `post` - how many comments he received
+   
+   so on the `voncount.config` file, at the JSON's top level (**not** nested under the `reads` action!) we'll add -
+
+   ```JSON
+   {
+     "reads": {
+      .
+      .
+      .
+     },
+     
+     "comments": {
+       "User": [
+         {
+           "id": "user",
+           "count": "comments"
+         },
+         {
+           "id": "author",
+           "count": "comments_got"
+         }
+       ],
+
+       "Post": [
+         {
+           "id": "post",
+           "count": "comments"
+         }
+       ]
+      }
+   }
+   ```
+   
+   now we'll make a call to http://my-von-count.com/comments?author=1234&user=5678&post=888 and in the DB we'll have:
+   >User_1234: { comments_got: 1 }
+   >
+   >User_5678: { comments: 1 }
+   >
+   >Post_888:  { comments: 1 }
+   
+7. ###ordered sets (leaderboard) - save the counters data in order
+   In all previous examples the data saved in Redis was of type Hash. 
+
+   Its possible to save the data in ZSet as well. in that way you can get data already ordered by the counters value. 
+   
+   This can be very usefull for leaderboards and such. 
+   For example, we want to know the "top 3 posts" (posts that got the most reads) in each day - 
+   
+   ```JSON
+   {
+     "reads": {
+      .
+      .
+      .
+      "PostDaily": [
+         {
+           "type": "set",
+           "id": [
+             "day",
+             "month",
+             "year"
+           ],
+           "count": "post_{post}",
+           "expire": 604800
+         }
+       ]
+   ```
+   You can see we defined a `type` equals to "set". you can also define `type` as "hash" which is the default option so you can just skip this definition like in previous examples.
+   
+   \* We are using the `post` id as part of the `<COUNTER>` name, similar to example #5.
+   
+   The data for this example will look like -
+   
+   >PostDaily_28_11_2013: {
+   >     post_888: 2,
+   >     post_53:  15,
+   >     post_932: 26,
+   >     ...
+   >}
+   
+   The data is ordered, and you can retrieve it using Redis's `zrange` and `zrevrange` commands, and - for the sake of our example - get the "top 3 posts" without fetching the entire set and doing your own sort on the values, but simply by - `zrevrange PostDaily_28_11_2013 0 2`
+   
+   The downside of sets, as opposed to hashed, is that you cannot retreive a specific `<COUNTER>` value.
+
+   Later when we'll talk about (#retriving-data)[retriving data], we'll show how to retrive data through the server, and without accessing Redis directly.
+
+8. ###advance count - custom functions - writing your own logic
+   the system enables you to go crazy and implement more complex logics for your counters. To do that, you'll need to get your hands a bit dirty, and write some Lua code.
+
+   in this example we'll implement *conditional count*:
+   
+   when a new `post` is created, we report a `post_create` action - http://my-von-count.com/post_create?user=1234, and increase the `post_created` counter for the `user` who wrote the post - 
+   ```JSON
+   "post_create": {
+     "User": [
+       {
+         "id": "user",
+         "count": "post_created"
+       }
+     ]   
+   ```
+   
+   Reminder - a `post` "belongs" to a `team`, and we want to know for each `team` how many `posts` it have,
+   
+   **BUT** we want to count only posts that have at least 200 words.
+   
+   so when reporting the `post_create` action, we'll add the `team` parameter to the query string, and lets also add another parameter - `long_post` that will get "true" or "false" as values.
+   
+   our call will look like - http://my-von-count.com/post_create?user=1234&team=10&long_post=true
+   
+   the config file - 
+   ```JSON
+   "post_create": {
+     "User": [
+       {
+         "id": "user",
+         "count": "post_created"
+       }
+     ],
+     
+     "TeamCounters": [
+       {
+         "id": "team",
+         "custom_functions": [
+           {
+             "name": "conditionalCount",
+             "args": [
+               "{long_post}",
+               "posts"
+             ]
+           }
+         ]
+       }
+     ]     
+   ```
+   
+   and now lets write the Lua code for this custom function in `lib/redis/voncount.lua`:
+   ```lua
+   ----------------- Custom Methods -------------------------
+   
+    function Base:conditionalCount(should_count, key)
+      if should_count == "true" then
+        self:count(key, 1)
+      end
+    end
+   
+   ```
+   
+   what do we have here:
+      - `conditionalCount` is the name of our new custom function, and it must be equal to the "name" is the config.
+      - our custom function received 2 arguments, which are defined by the "args" in the config:
+         * `should_count` will receive the value of the `long_post` parameter provided in the query string.
+         * `key` will always receive the same value - the string "posts"
+      - `self:count(key, 1)` - is a call to a different function - `count` - which is the basic count functionality and is already defined in the `lib/redis/voncount.lua` file. (`self` is the current instance of the `Base` class that defines the `count` function and our new `conditionalCount` custom function)
+      
+   \* **Notice** that the `post_create` count for the `User` object is not effected, and it always gets count, even if the `long_post` parameter is "false".
+  
+   The data will look like - 
+   >TeamCounters_7: { posts: 324 }
+   
+9. ###variable count - not just increase by 1
+   In all previous examples we always increased the `<COUNTER>` by 1 with each call, but this doesn't have to be the case.
+
+   The system lets you decide the increment number using the `change` definition in the config file.
+   
+   In example #8 we showed how we count for a `user` how many posts he created. when a post is deleted we want to decrease this counter. We'll define a `post_remove` action that will be resposible for this decrement:
+   
+   ```JSON
+   "post_remove": {
+      "User": [
+        {
+          "id": "user",
+          "count": "post_created",
+          "change": -1
+        }
+      ]
+   }
+   ```
+   Notice we decrease the value of the "post_created" `<COUNTER>`
+   
+   So if in the DB we have:
+   >User_1234: { post_created: 5 }
+   Then after a call to http://my-von-count.com/post_remove?user=1234, our data will be:
+   >User_1234: { post_created: 4 }
+   
+   \* `change` can have any integer value, not just 1 or -1!
+   
+   
+
+   
+   
+   
+
    Request Metadata Parameters Plugins
    -----------------------------------
    Sometimes there is need that the key names will consist data that is not part of the request arguments, but is based on the request metadata. Currently, we support 2 types this cases: date_time metadata paramerters and country parameter.    
-   The Request Metadata Parameters works a plugin mechanisem. Enabling/disabling plugins can be done by adding/removing the plugin name in `lib/nginx/request_metadata_parameters_plugins/registered_plugins.lua'. Let's dicuss the default plugins which come out of the box.
+   The Request Metadata Parameters works a plugin mechanisem. Enabling/disabling plugins can be done by adding/removing the plugin name in `lib/nginx/request_metadata_parameters_plugins/registered_plugins.lua'. Let's discuss the default plugins which come out of the box.
    
    ### DateTime Plugin
    

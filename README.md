@@ -79,21 +79,20 @@ Counfiguration
 Counting - Its easy as 1,2,3
 =============================
 To configure what gets count and how, simply edit the `config/voncount.config` file.
-the file is written in standart JSON notation.
-for most use-cases you won't even need to write code!
+The file is written in standart JSON format, and for most use-cases you won't even need to write code!
 
 We'll show here some examples that covers all the different options the system support. most of them are real life examples taken from our production environment. 
 
-But Let's start with a simple example. Say that you have a blog site and you want to count the number of reads of each blog post.
+But Let's start with a simple example: Say that you have a blog site and you want to count the number of reads of each blog post gets.
 You need to take care for 2 things:
 
-  1. In each page, load a pixel that is src is: http://<counting_server>/reads?post=3144
+  1. In each post page, make a call to http://my-von-count.com/reads?post=3144 (3144 is a unique identifier of the current post)
   2. Set the following configration:
 
 ```JSON
 {
-  "<reads>": {
-    "<Post>": [
+  "reads": {
+    "Post": [
       {
         "id": "post",
         "count": "num_reads"
@@ -102,14 +101,16 @@ You need to take care for 2 things:
   }
 }
 ````
-That's it! For each post that will be read, a redis hash with Post_<post_id> will be created, with <num_reads> key. 
-e.g, to get the number of reads of post 3144 you can execute `redis-cli hget Post_3144 num_reads`
+That's it! For each post that will be read you'll have data in the Redis DB of the form
+>Post_3144: { num_reads: 5772 }
+
+e.g, to get the number of reads for post 3144 you can run `redis-cli hget Post_3144 num_reads`
 
 
 General Usage
 -------------
 
-Lets start with a general example for the most basic use case:
+Lets see a general example for the most basic use case:
 
 ```JSON
 {
@@ -134,7 +135,7 @@ At [FTBpro](https://www.ftbpro.com) we have `posts`, `users`, and `teams`.
 each `post` is written by a `user` who is the author, and the post "belongs" to a `team`.
 
 1. ###simple count - post read
-   when a `post` gets read, we want to increase a counter for the post's `author` (which is a `user`), so we know how many reads that user got. here is the config file:
+   when a `post` gets read, we want to increase a counter for the post's `author` (an `author` is basically a `User` of our site), so we know how many reads that user got. here is the config file:
    ```JSON
    {
      "reads": {
@@ -152,11 +153,12 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    
    `User` is the object for which we want to count the `reads` action.
    
-   `id` is the object (e.g. user's) id, and it should be defined in the query string parameters.
+   `id` is the object (e.g. user's) id, and it should be defined in the query string parameters when making a call to the count-von-count server.
    
    `count` is what we count/increase.
 
-   so, with the above configuration, if we make a call to http://my-von-count.com/reads?author=1234 then in the DB we'll have a key `User_1234` with value ``` { reads: 1 } ```
+   so, with the above configuration, if we make a call to http://my-von-count.com/reads?author=1234 then in the DB we'll have:
+   >User_1234: { reads_got: 1 }
    
    Compared to the general example: 
       * `<ACTION>`  = `reads`
@@ -166,10 +168,12 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
      
    So given a `reads` `<ACTION>`, the `reads_got` `<COUNTER>` of the `User` `<OBJECT>` with `<ID>` equals to `author`'s value, will be increase by one.
    
-   **Notice** - in the config JSON, the value of `<ACTION>` (`reads`) is a hash, and the value of the `<OBJECT>` (`user`) is an array of hashes.
+   **Notice** - in the config JSON, the value of `<ACTION>` (`reads`) is a hash, and the value of the `<OBJECT>` (`User`) is an array of hashes.
    
 2. ###simple count - multiple objects of the same type
-   now lets also count how many posts a user has read.
+   now lets also count how many posts a user has read. 
+
+   Meaning, that when a post gets read, we want to increase a counter for the author, like in previous example, and also increase a counter for the user who is now reading the post in order to know how many posts each user has read.
 
    ```JSON
    {
@@ -188,17 +192,19 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    }
    ```
   
-   the 'reading' user is also a `User` so we define it under the already existing `User` object.
+   The one who is reading the post now is also a `User` so we define it under the already existing `User` object.
 
-   the user's id is defined in the query string params as the `user` parameter and for him we count `reads`,
-   so after a call to http://my-von-count.com/reads?author=1234&user=5678 our DB will look like:
+   The user's id is defined in the query string params as the `user` parameter and for him we count `reads`.
+   After a call to http://my-von-count.com/reads?author=1234&user=5678 our DB will look like:
    
    >User_1234: { reads_got: 2 }
    >
    >User_5678: { reads: 1 }
    
 3. ###simple count - multiple objects of different types
-   We also want to know how many `reads` each `Post` received, so we add the above configuration for `Post` object under the `reads` action, and we add a 'post' id to the query string parameters. 
+   We also want to know how many `reads` each `Post` received.
+
+   We add the following configuration for `Post` object under the `reads` action, and we add a 'post' id to the query string parameters. 
 
    ```JSON
    {
@@ -233,7 +239,11 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    
    
 4. ###simple count - object with multiple IDs
-   At [FTBpro](https://www.ftbpro.com) we are doing daily analytics, so for each `user` we want to know how many posts he read in each day.
+   At [FTBpro](https://www.ftbpro.com) we are doing daily analytics. 
+
+   For each `user` we want to know how many posts he read in each day.
+   
+   We'll define a "UserDaily" object. His id will be the user's id and the current date.
 
    ```JSON
    {
@@ -255,8 +265,8 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
        ],   
    ```
    
-   The `<ID>` of the `UserDaily` object is an **array**, and is composed of 4 parameters, so after a call to
-   http://my-von-count.com/reads?user=5678, the DB will have the following key-value 
+   Notice the `<ID>` of the `UserDaily` object is an **array**, and its composed of 4 parameters, so after a call to
+   http://my-von-count.com/reads?user=5678, the DB will have the following data:
    >UserDaily_5678_28_11_2013: { reads: 1 }
    
    
@@ -264,8 +274,9 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    
 
 5. ###dynamic count - parameter as `<COUNTER>` name
-   we can use parameters to determine the `<COUNTER>` name. in that way we can dynamically determine what gets count.
-   in this example, we count for an `author` how many reads he had from each country (every week).
+   We can use parameters to determine the `<COUNTER>` name. in that way we can dynamically determine what gets count.
+   
+   In this example, we count for an `author` how many reads he had from each country (every week).
 
    ```JSON
    {
@@ -293,14 +304,14 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
 
   \*Its possible to use a parameter name that is passed in the request query string (e.g. `author`, `post`, etc...), and not only the Metadata Parameters!
   
-  \* `<COUNTER>` names can be be more complex. lets say we have a `registered` parameter in the request query string, so we can use - `"count": "from_{country}_{registered}"`
+  \* `<COUNTER>` names can be be more complex. lets say we have a `registered` parameter in the request query string, so in the config file we can define - `"count": "from_{country}_{registered}"`
 
    
 6. ###simple count - existing objects, different actions
-   so far we've seen examples related to posts reads, but users can also comment on posts. 
+   So far we've seen examples related to posts reads, but users can also comment on posts. 
    very similar to the `reads` action, we also want to count:
      * for each `author` - how many comments he received on his posts
-     * for each `user` - how many comments he did
+     * for each `user` - how many comments he wrote
      * for each `post` - how many comments he received
    
    so on the `voncount.config` file, at the JSON's top level (**not** nested under the `reads` action!) we'll add -
@@ -376,9 +387,13 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    The data for this example will look like -
    
    >PostDaily_28_11_2013: {
+   >
    >     post_888: 2,
+   >
    >     post_53:  15,
+   >
    >     post_932: 26,
+   >
    >     ...
    >}
    
@@ -386,7 +401,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    
    The downside of sets, as opposed to hashed, is that you cannot retreive a specific `<COUNTER>` value.
 
-   Later when we'll talk about (#retriving-data)[retriving data], we'll show how to retrive data through the server, and without accessing Redis directly.
+   Later when we'll talk about [retriving data](#retriving-data), we'll show how to retrive data through the server, and without accessing Redis directly.
 
 8. ###advance count - custom functions - writing your own logic
    the system enables you to go crazy and implement more complex logics for your counters. To do that, you'll need to get your hands a bit dirty, and write some Lua code.
@@ -489,11 +504,29 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    
    \* `change` can have any integer value, not just 1 or -1!
    
-   
-
-   
-   
-   
+  ##Expire - setting TTL on Redis data
+  Those of you with a keen eye might have noticed that in examples #4 and #7 the configuration include an `expire` definition.
+  
+  You can put it on any `<OBJECT>` in the config, and it sets its TTL (time to live) in Redis. The value is in seconds (e.g. 1209600 = 2 weeks).
+  
+  This is usefull in order to keep the amount of data in the DB at a sane size, and also help keep it clean from old irrelevant data that we may never need again.
+  
+  The TTL is set on the first time the data is created in our Redis DB, and it is **not** getting extended when the data is updated!
+  
+  Take a look at example #4 again. Lets assume the DB is empty. 
+  
+  After a call to http://my-von-count.com/reads?user=5678, our DB will have, the following data - 
+  >UserDaily_5678_28_11_2013: { reads: 1 }
+  
+  This data will have a TTL of 2 weeks. 
+  
+  If after 4 days we'll make another call to http://my-von-count.com/reads?user=5678, then our data will be
+  >UserDaily_5678_28_11_2013: { reads: 2 }
+  
+  but its TTL will be equal to only the remaining 10 days!
+  
+  If we'll wait another 10 days, this data will be gone!
+  
 
    Request Metadata Parameters Plugins
    -----------------------------------
@@ -535,6 +568,10 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
   You make your changes to `lib/nginx/request_metadata_parameters_plugins/date_time.lua`. For example, if you want to save the name of the country insted of it code, you can use `geoip.name_by_id(id)` method instad of `geoip.code_by_id(id)`
 
 <TODO> Decide if its enabled by default
+
+
+Retriving Data
+-----------------------------------
 
 
 Architecture

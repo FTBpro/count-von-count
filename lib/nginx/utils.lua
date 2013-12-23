@@ -26,7 +26,7 @@ function utils:initRedis()
 end
 
 function utils:loadSystemConfig()
-  config_path = "/usr/local/openresty/nginx/Count-von-Count/config/system.config"
+  config_path = "/usr/local/openresty/nginx/count-von-count/config/system.config"
   SYSTEM_CONFIG = {}
   for line in io.lines(config_path) do
     for i,j in line:gmatch("(%S+):%s*(%S+)") do

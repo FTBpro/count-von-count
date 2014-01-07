@@ -2,8 +2,7 @@ Count Von Count
 =================
 ![alt tag](http://1.bp.blogspot.com/_zCGbA5Pv0PI/TGj5YnGEDDI/AAAAAAAADD8/ipYKIgc7Jg0/s400/CountVonCount.jpg)
 
-Count-von-Count is a counting system that was developed in [FTBPro.com](https://www.ftbpro.com). It can be used to count any action (i.e. number of readers of an article, number of vistiors to a website per day/hour/week) or **metrics**.
-It is based on Nginx and Redis, delivering a scalable and **LIVE** system.
+Count-von-Count is an open source project that was developed in FTBpro for a gamification project and it turned to be something the can count any kind of action.  It is based on Nginx and Redis, leverages them to create a live, scalable and easy to use counting solution for a wide range of scenarios.
 
 What you can do with it?
 ========================
@@ -21,9 +20,6 @@ With Count-von-Count you can:
 
 Installation
 =============
-
-Setting up the counting server
--------------------------------
 
 1. Install redis-server (apt-get install redis-server). You can also use one of your previously installed servers.
 2. Update `config/system.config` file with the Redis server ip, port and database.
@@ -44,7 +40,7 @@ Setting up the counting server
       .
    ``` 
    
-Counfiguration
+Setup
 --------------
 
 **for the first time**

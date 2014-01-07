@@ -4,9 +4,9 @@ Count Von Count
 
 Count-von-Count is an open source project that was developed in FTBpro for a gamification project and it turned to be something the can count any kind of action.  It is based on Nginx and Redis, leverages them to create a live, scalable and easy to use counting solution for a wide range of scenarios.
 
-What you can do with it?
+Example of what you can do with it
 ========================
-Here are some ways that we use in [FTBPro.com](https://www.ftbpro.com)
+Here are some ways that we use it in [FTBPro.com](https://www.ftbpro.com)
 
 ![Some Counters](http://media.tumblr.com/c0508089f2e631613bff664a94599d10/tumblr_inline_mwtdlnw5d21s9eocl.png)
 
@@ -41,48 +41,43 @@ Installation
    ``` 
    
 Setup
---------------
-
-**for the first time**
-     * clone the git repository into your folder of choice (recommended to use our default - /home/deploy/count-von-count/current)
-     * run `sudo ./lib/scripts/setup.sh`. if the last 2 output lines are
-     
-       ~~~
-       >>> nginx is running
-       >>> redis-server is running
-       ~~~
+=======
+After Installation is complete, you need, for the first time only, to set up the server.
+  
+If you are familiar with Ruby and Capistrano, you can skip this section and follow this - [Deploy using Ruby & Capistrano](#deploy-using-ruby-and-capistrano)
+  
+  * clone the git repository into your folder of choice (recommended to use our default - /home/deploy/count-von-count/current)
+  * run `sudo ./lib/scripts/setup.sh`. if the last 2 output lines are
        
-       then you should be good to go.
+         ~~~
+         >>> nginx is running
+         >>> redis-server is running
+         ~~~
+         
+      then you should be good to go.
        
-** Every time you change the config or Lua scripts **
-  run `sudo ./lib/scripts/reload.sh`  
-
-(OPTIONAL): Remote Deployment Using Ruby & [Capistrano](https://github.com/capistrano/capistrano)
----------------------------------------------------------
-
-   Edit `deploy.rb` file and set the correct deploy user and your servers ips in the `deploy` and `env_servers` variables.
-
-   **for the first time** run `cap deploy:setup` to bootstrap the server.
-
-   use `cap deploy` to deploy master branch to production.
-
-   use `cap deploy -S env=qa -S branch=bigbird` if you want to deploy to a different environment and/or a different branch.
+Reload
+=======
+Every time you change the config or the code run `sudo ./lib/scripts/reload.sh`
 
 
 ************************************************************************
 ************************************************************************
 
-Counting - Its easy as 1,2,3
-=============================
-To configure what gets count and how, simply edit the `config/voncount.config` file.
-The file is written in standart JSON format, and for most use-cases you won't even need to write code!
+Getting Started - Counting, Its easy as 1,2,3
+=============================================
+Now, after you've understood the general overview of how the system works, and you installed & setup your server, you are ready to get your hands really dirty! :-)
+
+The `config/voncount.config` file is the heart of the system, and determines what gets count and how.
+
+The file is written in standart JSON format, and for most use-cases changing it and customizing it to your needs is enough. You won't even need to write code!
 
 We'll show here some examples that covers all the different options the system support. most of them are real life examples taken from our production environment. 
 
-But Let's start with a simple example: Say that you have a blog site and you want to count the number of reads of each blog post gets.
+But Let's start with a simple example: Say that you have a blog site and you want to count the number of reads that each blog post gets.
 You need to take care for 2 things:
 
-  1. In each post page, make a call to http://my-von-count.com/reads?post=3144 (3144 is a unique identifier of the current post)
+  1. In each post page, put a pixel (or make a call via JavaScript to) - http://my-von-count.com/reads?post=3144 (3144 is a unique identifier of the current post).
   2. Set the following configration:
 
 ```JSON
@@ -97,7 +92,9 @@ You need to take care for 2 things:
   }
 }
 ````
-That's it! For each post that will be read you'll have data in the Redis DB of the form
+** don't forget to run the `reload.sh` script after you change the configuration! **
+
+That's it! For each post that gets read you'll have data in the Redis DB of the form
 >Post_3144: { num_reads: 5772 }
 
 e.g, to get the number of reads for post 3144 you can run `redis-cli hget Post_3144 num_reads`
@@ -600,7 +597,7 @@ Count-von-count comes with a log player.It is very useful in cases of recovery a
 3. run the log player: `lua log_player.lua <access_log_path>`
 
 Advacned
----------
+=========
 
 ##Backups
 
@@ -638,6 +635,17 @@ If the specs we write make a request to the Nginx, than we can take advantage of
 ![alt-tag](https://s3-us-west-2.amazonaws.com/action-counter-logs/LogPlayerIntegrator.png)
 
 This behaviour can be turned off from the `spec_config.yml` file. 
+
+Deploy using Ruby and [Capistrano](https://github.com/capistrano/capistrano)
+---------------------------------------------------------
+   Edit `deploy.rb` file and set the correct deploy user and your servers ips in the `deploy` and `env_servers` variables.
+
+   **for the first time** run `cap deploy:setup` to bootstrap the server.
+
+   use `cap deploy` to deploy master branch to production.
+
+   use `cap deploy -S env=qa -S branch=bigbird` if you want to deploy to a different environment and/or a different branch.
+   
 
 Pitfalls & Gotcha
 -------------------

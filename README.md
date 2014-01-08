@@ -1,13 +1,12 @@
-Count Von Count
-=================
+#Count Von Count
+
 ![alt tag](http://1.bp.blogspot.com/_zCGbA5Pv0PI/TGj5YnGEDDI/AAAAAAAADD8/ipYKIgc7Jg0/s400/CountVonCount.jpg)
 
-Count-von-Count is a counting system that was developed in [FTBPro.com](https://www.ftbpro.com). It can be used to count any action (i.e. number of readers of an article, number of vistiors to a website per day/hour/week) or **metrics**.
-It is based on Nginx and Redis, delivering a scalable and **LIVE** system.
+Count-von-Count is an open source project that was developed in FTBpro for a gamification project and it turned to be something the can count any kind of action.  It is based on Nginx and Redis, leverages them to create a live, scalable and easy to use counting solution for a wide range of scenarios.
 
-What you can do with it?
-========================
-Here are some ways that we use in [FTBPro.com](https://www.ftbpro.com)
+#What can be counted?
+
+Here are some ways that we use it in [FTBPro.com](https://www.ftbpro.com)
 
 ![Some Counters](http://media.tumblr.com/c0508089f2e631613bff664a94599d10/tumblr_inline_mwtdlnw5d21s9eocl.png)
 
@@ -19,11 +18,13 @@ With Count-von-Count you can:
 4. Store anykind of Leaderboard, such as top writers, top readers, top countries your visitors are coming from.
 5. Anything that can be counted!
 
-Installation
-=============
+# General Overview 
 
-Setting up the counting server
--------------------------------
+Count-von-Count is a web server that uses Redis as a database. When a client wants to tell the server on an event that should be counted, he calls it in the following format: <server_ip>/<action_name>?<params>. This calls always return a 1X1 empty pixel, to reduce the overhead in calling it form javascripts clients. 
+A configuration file, von_vount.config which is defined in the server, sets the rules of the counting - what to update for each action. The updates are synchronously commited to the dababase.
+The sever also has an api for retrieving the data.
+
+#Installation
 
 1. Install redis-server (apt-get install redis-server). You can also use one of your previously installed servers.
 2. Update `config/system.config` file with the Redis server ip, port and database.
@@ -43,50 +44,38 @@ Setting up the counting server
       .
       .
    ``` 
-   
-Counfiguration
---------------
-
-**for the first time**
-     * clone the git repository into your folder of choice (recommended to use our default - /home/deploy/count-von-count/current)
-     * run `sudo ./lib/scripts/setup.sh`. if the last 2 output lines are
-     
-       ~~~
-       >>> nginx is running
-       >>> redis-server is running
-       ~~~
+5.  After Installation is complete, you need, for the first time only, to set up the server.
+  
+If you are familiar with Ruby and Capistrano, you can skip this section and follow this - [Deploy using Ruby & Capistrano](#deploy-using-ruby-and-capistrano)
+  
+  * clone the git repository into your folder of choice (recommended to use our default - /home/deploy/count-von-count/current)
+  * run `sudo ./lib/scripts/setup.sh`. if the last 2 output lines are
        
-       then you should be good to go.
+         ~~~
+         >>> nginx is running
+         >>> redis-server is running
+         ~~~
+         
+      then you should be good to go.
        
-** Every time you change the config or Lua scripts **
-  run `sudo ./lib/scripts/reload.sh`  
+## Reload
 
-(OPTIONAL): Remote Deployment Using Ruby & [Capistrano](https://github.com/capistrano/capistrano)
----------------------------------------------------------
+Every time you change the config or the code run `sudo ./lib/scripts/reload.sh`
 
-   Edit `deploy.rb` file and set the correct deploy user and your servers ips in the `deploy` and `env_servers` variables.
+# Getting Started - Counting, Its easy as 1,2,3
 
-   **for the first time** run `cap deploy:setup` to bootstrap the server.
+Now, after you've understood the general overview of how the system works, and you installed & setup your server, you are ready to get your hands really dirty! :-)
 
-   use `cap deploy` to deploy master branch to production.
+The `config/voncount.config` file is the heart of the system, and determines what gets count and how.
 
-   use `cap deploy -S env=qa -S branch=bigbird` if you want to deploy to a different environment and/or a different branch.
-
-
-************************************************************************
-************************************************************************
-
-Counting - Its easy as 1,2,3
-=============================
-To configure what gets count and how, simply edit the `config/voncount.config` file.
-The file is written in standart JSON format, and for most use-cases you won't even need to write code!
+The file is written in standart JSON format, and for most use-cases changing it and customizing it to your needs is enough. You won't even need to write code!
 
 We'll show here some examples that covers all the different options the system support. most of them are real life examples taken from our production environment. 
 
-But Let's start with a simple example: Say that you have a blog site and you want to count the number of reads of each blog post gets.
+But Let's start with a simple example: Say that you have a blog site and you want to count the number of reads that each blog post gets.
 You need to take care for 2 things:
 
-  1. In each post page, make a call to http://my-von-count.com/reads?post=3144 (3144 is a unique identifier of the current post)
+  1. In each post page, put a pixel (or make a call via JavaScript to) - http://my-von-count.com/reads?post=3144 (3144 is a unique identifier of the current post).
   2. Set the following configration:
 
 ```JSON
@@ -101,14 +90,20 @@ You need to take care for 2 things:
   }
 }
 ````
-That's it! For each post that will be read you'll have data in the Redis DB of the form
+** don't forget to run the `reload.sh` script after you change the configuration! **
+
+That's it! For each post that gets read you'll have data in the Redis DB of the form
 >Post_3144: { num_reads: 5772 }
 
 e.g, to get the number of reads for post 3144 you can run `redis-cli hget Post_3144 num_reads`
 
 
-General Usage
--------------
+#Configuration
+
+##Counting Options
+
+### General Usage
+
 
 Lets see a general example for the most basic use case:
 
@@ -134,7 +129,7 @@ to get you in context, here is a short description of our domain -
 At [FTBpro](https://www.ftbpro.com) we have `posts`, `users`, and `teams`. 
 each `post` is written by a `user` who is the author, and the post "belongs" to a `team`.
 
-1. ###simple count - post read
+###1. simple count - post read
    when a `post` gets read, we want to increase a counter for the post's `author` (an `author` is basically a `User` of our site), so we know how many reads that user got. here is the config file:
    ```JSON
    {
@@ -170,7 +165,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    
    **Notice** - in the config JSON, the value of `<ACTION>` (`reads`) is a hash, and the value of the `<OBJECT>` (`User`) is an array of hashes.
    
-2. ###simple count - multiple objects of the same type
+###2. simple count - multiple objects of the same type
    now lets also count how many posts a user has read. 
 
    Meaning, that when a post gets read, we want to increase a counter for the author, like in previous example, and also increase a counter for the user who is now reading the post in order to know how many posts each user has read.
@@ -201,7 +196,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    >
    >User_5678: { reads: 1 }
    
-3. ###simple count - multiple objects of different types
+###3. simple count - multiple objects of different types
    We also want to know how many `reads` each `Post` received.
 
    We add the following configuration for `Post` object under the `reads` action, and we add a 'post' id to the query string parameters. 
@@ -238,7 +233,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    >Post_888:  { reads: 1 }
    
    
-4. ###simple count - object with multiple IDs
+###4. simple count - object with multiple IDs
    At [FTBpro](https://www.ftbpro.com) we are doing daily analytics. 
 
    For each `user` we want to know how many posts he read in each day.
@@ -273,7 +268,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    **WAIT A SECOND!** the query string contains only the `user` parameter, where does the other 3 parameters (`day`, `month`, `year`) come from?!? Read more about it on [Request Metadata Parameters Plugins](#request-metadata-parameters-plugins).
    
 
-5. ###dynamic count - parameter as `<COUNTER>` name
+###5. dynamic count - parameter as `<COUNTER>` name
    We can use parameters to determine the `<COUNTER>` name. in that way we can dynamically determine what gets count.
    
    In this example, we count for an `author` how many reads he had from each country (every week).
@@ -307,7 +302,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
   \* `<COUNTER>` names can be be more complex. lets say we have a `registered` parameter in the request query string, so in the config file we can define - `"count": "from_{country}_{registered}"`
 
    
-6. ###simple count - existing objects, different actions
+###6. simple count - existing objects, different actions
    So far we've seen examples related to posts reads, but users can also comment on posts. 
    very similar to the `reads` action, we also want to count:
      * for each `author` - how many comments he received on his posts
@@ -353,7 +348,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    >
    >Post_888:  { comments: 1 }
    
-7. ###ordered sets (leaderboard) - save the counters data in order
+###7. ordered sets (leaderboard) - save the counters data in order
    In all previous examples the data saved in Redis was of type Hash. 
 
    Its possible to save the data in ZSet as well. in that way you can get data already ordered by the counters value. 
@@ -403,7 +398,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
 
    Later when we'll talk about [retriving data](#retriving-data), we'll show how to retrive data through the server, and without accessing Redis directly.
 
-8. ###advance count - custom functions - writing your own logic
+###8. advance count - custom functions - writing your own logic
    the system enables you to go crazy and implement more complex logics for your counters. To do that, you'll need to get your hands a bit dirty, and write some Lua code.
 
    in this example we'll implement *conditional count*:
@@ -477,7 +472,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    The data will look like - 
    >TeamCounters_7: { posts: 324 }
    
-9. ###variable count - not just increase by 1
+###9. variable count - not just increase by 1
    In all previous examples we always increased the `<COUNTER>` by 1 with each call, but this doesn't have to be the case.
 
    The system lets you decide the increment number using the `change` definition in the config file.
@@ -528,8 +523,8 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
   If we'll wait another 10 days, this data will be gone!
   
 
-   Request Metadata Parameters Plugins
-   -----------------------------------
+   ## Request Metadata Parameters Plugins
+
    Sometimes there is need that the key names will consist data that is not part of the request arguments, but is based on the request metadata. Currently, we support 2 types this cases: date_time metadata paramerters and country parameter.    
    The Request Metadata Parameters works a plugin mechanisem. Enabling/disabling plugins can be done by adding/removing the plugin name in `lib/nginx/request_metadata_parameters_plugins/registered_plugins.lua'. Let's discuss the default plugins which come out of the box.
    
@@ -570,52 +565,27 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
 <TODO> Decide if its enabled by default
 
 
-Retriving Data
------------------------------------
+#Retriving Data
 
+#Advanced
 
-Architecture
-============
-
-Count-von-Count is based on OpenResty, a Nginx based web service, bundled with some useful 3rd party modules. It turns an nginx web server into a powerful web app server using scripts written in Lua programming language. It still has the advantage of the non-blocking I/O but also has the ability to communicate with remote clients such as MySQL, Memcached and also Redis. We are using Redis as our database for this project, leveraging its scalability and reliability.
+#Architecture
 
 ![alt tag](https://s3-us-west-2.amazonaws.com/action-counter-logs/Count-von-Count.png)
 
-**__NOTICE - if you don't use the default folders as in the instructions, you'll need to edit and change `deploy.rb`, `setup.sh` and  `reload.sh`__**
+Count-von-Count uses [OpenResty](http://openresty.org/) as a web server. It's basicaly a Nginx server, bundled with 3-rd party modules. One of them is [lua-nginx-module](https://github.com/chaoslawful/lua-nginx-module) which adds the ability to execute Lua scripts in the context of Nginx. Another useful module is [lua-resty-redis](https://github.com/agentzh/lua-resty-redis) which we use to comminicate with Redis, which is where we store the data.
 
+The flow of a counting request is:
+1. A client sends a request in the format of <count_von_count_server>/<action>?params. When the request arrives, Nginx triggers a lua script. After the script finishes, an empty 1X1 pixel is returned to the client.
+2. This Lua scripts parse the query params from the request, adds addtional params using the Request Metadata Paramerts Plugins and calls Redis to evaluate a preloaded Lua script.
+3. The redis script updates all the relevant keys , according to the von_count.config configuration file.
+4. In case of a disaster, a recovery is available through a Log Player.
 
-Log Player
-------------
+#Log Player
+
 Count-von-count comes with a log player.It is very useful in cases of recovery after system failure or running on old logs with new logic. Its input is access log file (a log file where the Nginx logs each incoming request). It updates the Redis based on the voncount.config.
 
 ![alt-tag](https://s3-us-west-2.amazonaws.com/action-counter-logs/LogPlayer.png)
-
-
-###Popular Scenarios of using it
-
-1. A bug/error in the system. The log player is based on Nginx's access logs which are written even if there is an nginx error.
-2. When a new logic is applied and we want to run it on old events.
-
-
-### Best Practices
-
-1. Set count-von-count on a different server.
-2. Update the voncount.config with the relevant actions for the log player. Note that the configuration can be different than the configuration of the "live" server.
-3. run the log player: `lua log_player.lua <access_log_path>`
-
-Advacned
----------
-
-##Backups
-
-###Recomended Backup Policy:
-
-1. Every configured amount of time, Redis persists its state to a dump file (dump.rdb). A hourly snapshot of this file should be made.
-2. Nginx's access log should be hourly rotated. This can be done with the logrotate Linux tool. More information on this process can be found on the web.
-3. Once a week and once a month, create a snapshot of dump.rdb file
-4. Once a day, upload all the dump and logs to a remote storage.
-5. After some days, the hourly snapshots can be removed, and the weekly and monthly backups should be kept.
-6. In case of a disaster, reload Redis with the relevant dump file, and use the log player with the access log.
 
 ## Testing
 
@@ -643,10 +613,17 @@ If the specs we write make a request to the Nginx, than we can take advantage of
 
 This behaviour can be turned off from the `spec_config.yml` file. 
 
+Deploy using Ruby and [Capistrano](https://github.com/capistrano/capistrano)
+---------------------------------------------------------
+   Edit `deploy.rb` file and set the correct deploy user and your servers ips in the `deploy` and `env_servers` variables.
+
+   **for the first time** run `cap deploy:setup` to bootstrap the server.
+
+   use `cap deploy` to deploy master branch to production.
+
+   use `cap deploy -S env=qa -S branch=bigbird` if you want to deploy to a different environment and/or a different branch.
+   
+
 Pitfalls & Gotcha
 -------------------
 (missing params in query string)
-
-GeoIP Plugin
--------------
-6) update init.lua with the location of the GeoIP.dat

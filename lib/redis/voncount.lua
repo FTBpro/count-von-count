@@ -92,7 +92,9 @@ function Base:sevenDaysCount(should_count, key)
     local first_day = tonumber(self._ids[3])
     for day = 0, 6, 1 do
       local curDayObjIds = dupArray(self._ids)
-      curDayObjIds[3] = (first_day + day) % 366
+      if (first_day + day) > 365 then
+        curDayObjIds[4] = string.format("%03d", (tonumber(curDayObjIds[4]) + 1) )
+      end
       local curDayObj = Base:new(self._obj_type, curDayObjIds, self._type)
       curDayObj:count(key, 1)
       curDayObj:expire(1209600)  -- expire in 2 weeks
@@ -125,41 +127,10 @@ local function getValueByKeys(tbl, keys)
   return values
 end
 
-local function justDebugIt(tbl, key)
-  local rslt = { key }
-  local match = key:match("{[%w_]*}")
-
-  while match do
-    local subStrings = flattenArray({ tbl[match:sub(2, -2)] })
-    local tempResult = {}
-    for i, subStr in ipairs(subStrings) do
-      local dup = dupArray(rslt)
-      for j, existingKey in ipairs(dup) do
-        local curKey = existingKey:gsub(match, subStr)
-        dup[j] = curKey
-       end
-       concatToArray(tempResult, dup)
-    end
-    rslt = tempResult
-    match = rslt[1]:match("{[%w_]*}")
-  end
-
-  if #rslt == 1 then
-    return rslt[1]
-  else
-    return rslt
-  end
-end
-
 
 -- parse key and replace "place holders" with their value from tbl.
 -- matching replace values in tbl can be arrays, in such case an array will be returned with all the possible keys combinations
 local function addValuesToKey(tbl, key)
-  local status, err = pcall(justDebugIt, tbl, key)
-  if not status then
-    redis.call("SET", "JustDebugIt", "match is " .. key:match("{.*}") .. " key is " .. key)
-  end
-
   local rslt = { key }
   local match = key:match("{[%w_]*}")
 

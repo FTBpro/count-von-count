@@ -47,15 +47,15 @@ describe "Counting" do
       end
     end
 
-    describe "AuthorWeeklyDemographics Hash" do
-      before do
-        @author_weekly_demographics = create :UserWeeklyDemographics, {user: @author.id, week: Time.now.strftime("%W"), year: Time.now.strftime("%Y")}
-        open("http://#{HOST}/reads?author=#{@author.id}")
-      end
-      it "should increase reads counter" do
-        @author_weekly_demographics.should_plus_1("--")
-      end
-    end
+    # describe "AuthorWeeklyDemographics Hash" do
+    #   before do
+    #     @author_weekly_demographics = create :UserWeeklyDemographics, {user: @author.id, week: Time.now.strftime("%W"), year: Time.now.strftime("%Y")}
+    #     open("http://#{HOST}/reads?author=#{@author.id}")
+    #   end
+    #   it "should increase reads counter" do
+    #     @author_weekly_demographics.should_plus_1("--")
+    #   end
+    # end
   end
 
   describe "comments action" do

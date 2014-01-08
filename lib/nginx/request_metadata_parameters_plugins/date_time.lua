@@ -21,10 +21,11 @@ function date_time:fromString(args, str)
   args["week"] = os.date("%W", str)
   args["month"] = os.date("%m", str)
   args["year"] = os.date("%Y", str)
+  args["week_year"] = args["week"] .. "_" .. args["year"]
 
   if args["week"] == "00" then
-    args["week"] = "52"
-    args["year"] = tostring( tonumber(args["year"]) - 1 )
+    local last_year = tostring( tonumber(args["year"]) - 1 )
+    args["week_year"] = "52_" .. last_year
   end
 end
 

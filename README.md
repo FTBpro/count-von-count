@@ -1,11 +1,11 @@
-Count Von Count
-=================
+#Count Von Count
+
 ![alt tag](http://1.bp.blogspot.com/_zCGbA5Pv0PI/TGj5YnGEDDI/AAAAAAAADD8/ipYKIgc7Jg0/s400/CountVonCount.jpg)
 
 Count-von-Count is an open source project that was developed in FTBpro for a gamification project and it turned to be something the can count any kind of action.  It is based on Nginx and Redis, leverages them to create a live, scalable and easy to use counting solution for a wide range of scenarios.
 
-Example of what you can do with it
-========================
+#What can be counted?
+
 Here are some ways that we use it in [FTBPro.com](https://www.ftbpro.com)
 
 ![Some Counters](http://media.tumblr.com/c0508089f2e631613bff664a94599d10/tumblr_inline_mwtdlnw5d21s9eocl.png)
@@ -18,8 +18,13 @@ With Count-von-Count you can:
 4. Store anykind of Leaderboard, such as top writers, top readers, top countries your visitors are coming from.
 5. Anything that can be counted!
 
-Installation
-=============
+# General Overview 
+
+Count-von-Count is a web server that uses Redis as a database. When a client wants to tell the server on an event that should be counted, he calls it in the following format: <server_ip>/<action_name>?<params>. This calls always return a 1X1 empty pixel, to reduce the overhead in calling it form javascripts clients. 
+A configuration file, von_vount.config which is defined in the server, sets the rules of the counting - what to update for each action. The updates are synchronously commited to the dababase.
+The sever also has an api for retrieving the data.
+
+#Installation
 
 1. Install redis-server (apt-get install redis-server). You can also use one of your previously installed servers.
 2. Update `config/system.config` file with the Redis server ip, port and database.
@@ -39,10 +44,7 @@ Installation
       .
       .
    ``` 
-   
-Setup
-=======
-After Installation is complete, you need, for the first time only, to set up the server.
+5.  After Installation is complete, you need, for the first time only, to set up the server.
   
 If you are familiar with Ruby and Capistrano, you can skip this section and follow this - [Deploy using Ruby & Capistrano](#deploy-using-ruby-and-capistrano)
   
@@ -56,16 +58,12 @@ If you are familiar with Ruby and Capistrano, you can skip this section and foll
          
       then you should be good to go.
        
-Reload
-=======
+## Reload
+
 Every time you change the config or the code run `sudo ./lib/scripts/reload.sh`
 
+# Getting Started - Counting, Its easy as 1,2,3
 
-************************************************************************
-************************************************************************
-
-Getting Started - Counting, Its easy as 1,2,3
-=============================================
 Now, after you've understood the general overview of how the system works, and you installed & setup your server, you are ready to get your hands really dirty! :-)
 
 The `config/voncount.config` file is the heart of the system, and determines what gets count and how.
@@ -100,8 +98,12 @@ That's it! For each post that gets read you'll have data in the Redis DB of the 
 e.g, to get the number of reads for post 3144 you can run `redis-cli hget Post_3144 num_reads`
 
 
-General Usage
--------------
+#Configuration
+
+##Counting Options
+
+### General Usage
+
 
 Lets see a general example for the most basic use case:
 
@@ -127,7 +129,7 @@ to get you in context, here is a short description of our domain -
 At [FTBpro](https://www.ftbpro.com) we have `posts`, `users`, and `teams`. 
 each `post` is written by a `user` who is the author, and the post "belongs" to a `team`.
 
-1. ###simple count - post read
+###1. simple count - post read
    when a `post` gets read, we want to increase a counter for the post's `author` (an `author` is basically a `User` of our site), so we know how many reads that user got. here is the config file:
    ```JSON
    {
@@ -163,7 +165,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    
    **Notice** - in the config JSON, the value of `<ACTION>` (`reads`) is a hash, and the value of the `<OBJECT>` (`User`) is an array of hashes.
    
-2. ###simple count - multiple objects of the same type
+###2. simple count - multiple objects of the same type
    now lets also count how many posts a user has read. 
 
    Meaning, that when a post gets read, we want to increase a counter for the author, like in previous example, and also increase a counter for the user who is now reading the post in order to know how many posts each user has read.
@@ -194,7 +196,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    >
    >User_5678: { reads: 1 }
    
-3. ###simple count - multiple objects of different types
+###3. simple count - multiple objects of different types
    We also want to know how many `reads` each `Post` received.
 
    We add the following configuration for `Post` object under the `reads` action, and we add a 'post' id to the query string parameters. 
@@ -231,7 +233,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    >Post_888:  { reads: 1 }
    
    
-4. ###simple count - object with multiple IDs
+###4. simple count - object with multiple IDs
    At [FTBpro](https://www.ftbpro.com) we are doing daily analytics. 
 
    For each `user` we want to know how many posts he read in each day.
@@ -266,7 +268,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    **WAIT A SECOND!** the query string contains only the `user` parameter, where does the other 3 parameters (`day`, `month`, `year`) come from?!? Read more about it on [Request Metadata Parameters Plugins](#request-metadata-parameters-plugins).
    
 
-5. ###dynamic count - parameter as `<COUNTER>` name
+###5. dynamic count - parameter as `<COUNTER>` name
    We can use parameters to determine the `<COUNTER>` name. in that way we can dynamically determine what gets count.
    
    In this example, we count for an `author` how many reads he had from each country (every week).
@@ -300,7 +302,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
   \* `<COUNTER>` names can be be more complex. lets say we have a `registered` parameter in the request query string, so in the config file we can define - `"count": "from_{country}_{registered}"`
 
    
-6. ###simple count - existing objects, different actions
+###6. simple count - existing objects, different actions
    So far we've seen examples related to posts reads, but users can also comment on posts. 
    very similar to the `reads` action, we also want to count:
      * for each `author` - how many comments he received on his posts
@@ -346,7 +348,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    >
    >Post_888:  { comments: 1 }
    
-7. ###ordered sets (leaderboard) - save the counters data in order
+###7. ordered sets (leaderboard) - save the counters data in order
    In all previous examples the data saved in Redis was of type Hash. 
 
    Its possible to save the data in ZSet as well. in that way you can get data already ordered by the counters value. 
@@ -396,7 +398,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
 
    Later when we'll talk about [retriving data](#retriving-data), we'll show how to retrive data through the server, and without accessing Redis directly.
 
-8. ###advance count - custom functions - writing your own logic
+###8. advance count - custom functions - writing your own logic
    the system enables you to go crazy and implement more complex logics for your counters. To do that, you'll need to get your hands a bit dirty, and write some Lua code.
 
    in this example we'll implement *conditional count*:
@@ -470,7 +472,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    The data will look like - 
    >TeamCounters_7: { posts: 324 }
    
-9. ###variable count - not just increase by 1
+###9. variable count - not just increase by 1
    In all previous examples we always increased the `<COUNTER>` by 1 with each call, but this doesn't have to be the case.
 
    The system lets you decide the increment number using the `change` definition in the config file.
@@ -521,8 +523,8 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
   If we'll wait another 10 days, this data will be gone!
   
 
-   Request Metadata Parameters Plugins
-   -----------------------------------
+   ## Request Metadata Parameters Plugins
+
    Sometimes there is need that the key names will consist data that is not part of the request arguments, but is based on the request metadata. Currently, we support 2 types this cases: date_time metadata paramerters and country parameter.    
    The Request Metadata Parameters works a plugin mechanisem. Enabling/disabling plugins can be done by adding/removing the plugin name in `lib/nginx/request_metadata_parameters_plugins/registered_plugins.lua'. Let's discuss the default plugins which come out of the box.
    
@@ -563,8 +565,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
 <TODO> Decide if its enabled by default
 
 
-Retriving Data
------------------------------------
+#Retriving Data
 
 
 Architecture
@@ -573,8 +574,6 @@ Architecture
 Count-von-Count is based on OpenResty, a Nginx based web service, bundled with some useful 3rd party modules. It turns an nginx web server into a powerful web app server using scripts written in Lua programming language. It still has the advantage of the non-blocking I/O but also has the ability to communicate with remote clients such as MySQL, Memcached and also Redis. We are using Redis as our database for this project, leveraging its scalability and reliability.
 
 ![alt tag](https://s3-us-west-2.amazonaws.com/action-counter-logs/Count-von-Count.png)
-
-**__NOTICE - if you don't use the default folders as in the instructions, you'll need to edit and change `deploy.rb`, `setup.sh` and  `reload.sh`__**
 
 
 Log Player

@@ -567,47 +567,25 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
 
 #Retriving Data
 
+#Advanced
 
-Architecture
-============
-
-Count-von-Count is based on OpenResty, a Nginx based web service, bundled with some useful 3rd party modules. It turns an nginx web server into a powerful web app server using scripts written in Lua programming language. It still has the advantage of the non-blocking I/O but also has the ability to communicate with remote clients such as MySQL, Memcached and also Redis. We are using Redis as our database for this project, leveraging its scalability and reliability.
+#Architecture
 
 ![alt tag](https://s3-us-west-2.amazonaws.com/action-counter-logs/Count-von-Count.png)
 
+Count-von-Count uses [OpenResty](http://openresty.org/) as a web server. It's basicaly a Nginx server, bundled with 3-rd party modules. One of them is [lua-nginx-module](https://github.com/chaoslawful/lua-nginx-module) which adds the ability to execute Lua scripts in the context of Nginx. Another useful module is [lua-resty-redis](https://github.com/agentzh/lua-resty-redis) which we use to comminicate with Redis, which is where we store the data.
 
-Log Player
-------------
+The flow of a counting request is:
+1. A client sends a request in the format of <count_von_count_server>/<action>?params. When the request arrives, Nginx triggers a lua script. After the script finishes, an empty 1X1 pixel is returned to the client.
+2. This Lua scripts parse the query params from the request, adds addtional params using the Request Metadata Paramerts Plugins and calls Redis to evaluate a preloaded Lua script.
+3. The redis script updates all the relevant keys , according to the von_count.config configuration file.
+4. In case of a disaster, a recovery is available through a Log Player.
+
+#Log Player
+
 Count-von-count comes with a log player.It is very useful in cases of recovery after system failure or running on old logs with new logic. Its input is access log file (a log file where the Nginx logs each incoming request). It updates the Redis based on the voncount.config.
 
 ![alt-tag](https://s3-us-west-2.amazonaws.com/action-counter-logs/LogPlayer.png)
-
-
-###Popular Scenarios of using it
-
-1. A bug/error in the system. The log player is based on Nginx's access logs which are written even if there is an nginx error.
-2. When a new logic is applied and we want to run it on old events.
-
-
-### Best Practices
-
-1. Set count-von-count on a different server.
-2. Update the voncount.config with the relevant actions for the log player. Note that the configuration can be different than the configuration of the "live" server.
-3. run the log player: `lua log_player.lua <access_log_path>`
-
-Advacned
-=========
-
-##Backups
-
-###Recomended Backup Policy:
-
-1. Every configured amount of time, Redis persists its state to a dump file (dump.rdb). A hourly snapshot of this file should be made.
-2. Nginx's access log should be hourly rotated. This can be done with the logrotate Linux tool. More information on this process can be found on the web.
-3. Once a week and once a month, create a snapshot of dump.rdb file
-4. Once a day, upload all the dump and logs to a remote storage.
-5. After some days, the hourly snapshots can be removed, and the weekly and monthly backups should be kept.
-6. In case of a disaster, reload Redis with the relevant dump file, and use the log player with the access log.
 
 ## Testing
 
@@ -649,7 +627,3 @@ Deploy using Ruby and [Capistrano](https://github.com/capistrano/capistrano)
 Pitfalls & Gotcha
 -------------------
 (missing params in query string)
-
-GeoIP Plugin
--------------
-6) update init.lua with the location of the GeoIP.dat

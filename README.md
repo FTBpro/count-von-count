@@ -27,10 +27,10 @@ The sever also has an api for retrieving the data.
 #Installation
 
 1. Install redis-server (apt-get install redis-server). You can also use one of your previously installed servers.
-2. Update `config/system.config` file with the Redis server ip, port and database.
-2. Download and install [OpenResty](http://openresty.org/#Installation). use default settings and directory structure!
-3. Install git
-4. Edit openresty's nginx.conf file (by default its in /usr/local/openresty/nginx/conf)
+2. Download and install [OpenResty](http://openresty.org/#install). use default settings and directory structure!
+3. clone count-von-count.
+4. If you are not using Redis with his default settings (localhost, port 6479), update `config/system.config` file with the Redis server ip and port.
+5. Edit openresty's nginx.conf file (by default its in /usr/local/openresty/nginx/conf)
    * add `worker_rlimit_nofile 30000;` at the top level
    * add `include /usr/local/openresty/nginx/conf/include/*;` under the 'http' section
 
@@ -48,8 +48,7 @@ The sever also has an api for retrieving the data.
   
 If you are familiar with Ruby and Capistrano, you can skip this section and follow this - [Deploy using Ruby & Capistrano](#deploy-using-ruby-and-capistrano)
   
-  * clone the git repository into your folder of choice (recommended to use our default - /home/deploy/count-von-count/current)
-  * run `sudo ./lib/scripts/setup.sh`. if the last 2 output lines are
+Run `sudo ./lib/scripts/setup.sh`. if the last 2 output lines are
        
          ~~~
          >>> nginx is running
@@ -57,11 +56,9 @@ If you are familiar with Ruby and Capistrano, you can skip this section and foll
          ~~~
          
       then you should be good to go.
+
+6. For the first time and every time you change the config or the code run `sudo ./lib/scripts/reload.sh`
        
-## Reload
-
-Every time you change the config or the code run `sudo ./lib/scripts/reload.sh`
-
 # Getting Started - Counting, Its easy as 1,2,3
 
 Now, after you've understood the general overview of how the system works, and you installed & setup your server, you are ready to get your hands really dirty! :-)
@@ -523,12 +520,12 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
   If we'll wait another 10 days, this data will be gone!
   
 
-   ## Request Metadata Parameters Plugins
+   # Request Metadata Parameters Plugins
 
-   Sometimes there is need that the key names will consist data that is not part of the request arguments, but is based on the request metadata. Currently, we support 2 types this cases: date_time metadata paramerters and country parameter.    
-   The Request Metadata Parameters works a plugin mechanisem. Enabling/disabling plugins can be done by adding/removing the plugin name in `lib/nginx/request_metadata_parameters_plugins/registered_plugins.lua'. Let's discuss the default plugins which come out of the box.
+   Sometimes there is need that the key names will consist data that is not part of the request arguments, but is based on the request metadata. Currently, we support 2 types this cases: date_timeparamerters and country parameter.    
+   The Request Metadata Parameters works as a plugin mechanisem. Enabling/disabling plugins can be done by adding/removing the plugin name in `lib/nginx/request_metadata_parameters_plugins/registered_plugins.lua'. Let's discuss the default plugins which come out of the box.
    
-   ### DateTime Plugin
+   ## DateTime Plugin
    
    | Parameter Name | Description                                                          |
    |----------------|----------------------------------------------------------------------|
@@ -542,7 +539,9 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
   
   The plugin comes with the arguments that we think are needed. If you want to add your parameters just update `lib/nginx/request_metadata_parameters_plugins/date_time.lua' with the relevant time formation.
    
-   ### Country Plugin
+   ## Country Plugin
+   
+   This plugin is disabled by default.To enable id just uncomment 'country' in `lib/nginx/request_metadata_parameters_plugins/registered_plugins.lua' file. 
    
    | Parameter Name | Description                                                          |
    |----------------|----------------------------------------------------------------------|
@@ -561,9 +560,6 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
   #### Customize the Country plugin
 
   You make your changes to `lib/nginx/request_metadata_parameters_plugins/date_time.lua`. For example, if you want to save the name of the country insted of it code, you can use `geoip.name_by_id(id)` method instad of `geoip.code_by_id(id)`
-
-<TODO> Decide if its enabled by default
-
 
 #Retriving Data
 

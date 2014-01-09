@@ -567,7 +567,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
 
 #Architecture
 
-![alt tag](https://s3-us-west-2.amazonaws.com/action-counter-logs/Count-von-Count.png)
+![Architecture](https://s3-us-west-2.amazonaws.com/action-counter-logs/Count-von-Count.png)
 
 Count-von-Count uses [OpenResty](http://openresty.org/) as a web server. It's basicaly a Nginx server, bundled with 3-rd party modules. One of them is [lua-nginx-module](https://github.com/chaoslawful/lua-nginx-module) which adds the ability to execute Lua scripts in the context of Nginx. Another useful module is [lua-resty-redis](https://github.com/agentzh/lua-resty-redis) which we use to comminicate with Redis, which is where we store the data.
 

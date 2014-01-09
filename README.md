@@ -44,11 +44,11 @@ The sever also has an api for retrieving the data.
       .
       .
    ``` 
-5.  After Installation is complete, you need, for the first time only, to set up the server.
+6.  After Installation is complete, you need, for the first time only, to set up the server.
   
-If you are familiar with Ruby and Capistrano, you can skip this section and follow this - [Deploy using Ruby & Capistrano](#deploy-using-ruby-and-capistrano)
+  If you are familiar with Ruby and Capistrano, you can skip this section and follow this - [Deploy using Ruby &     Capistrano](#deploy-using-ruby-and-capistrano)
   
-Run `sudo ./lib/scripts/setup.sh`. if the last 2 output lines are
+  Run `sudo ./lib/scripts/setup.sh`. if the last 2 output lines are
        
          ~~~
          >>> nginx is running
@@ -57,7 +57,7 @@ Run `sudo ./lib/scripts/setup.sh`. if the last 2 output lines are
          
       then you should be good to go.
 
-6. For the first time and every time you change the config or the code run `sudo ./lib/scripts/reload.sh`
+7. For the first time and every time you change the config or the code run `sudo ./lib/scripts/reload.sh`
        
 # Getting Started - Counting, Its easy as 1,2,3
 

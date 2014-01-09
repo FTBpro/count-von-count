@@ -581,36 +581,8 @@ The flow of a counting request is:
 
 Count-von-count comes with a log player.It is very useful in cases of recovery after system failure or running on old logs with new logic. Its input is access log file (a log file where the Nginx logs each incoming request). It updates the Redis based on the voncount.config.
 
-![alt-tag](https://s3-us-west-2.amazonaws.com/action-counter-logs/LogPlayer.png)
+#Deploy using Ruby and [Capistrano](https://github.com/capistrano/capistrano)
 
-## Testing
-
-We use [RSpec](http://rspec.info/) for testing. It is recomended to test your counters. A sample spec can be found at  `spec\counting_spec.rb`. 
-
-### Spec Configuration file
-
-The `spec\config\spec_config.yml` consists some setting for the specs. 
-
- | Config Key             | Default Valude | Description                                                              |
- |---------------------------------------------------------------------------------------------------                 |
- | redis_port             | 6379           | Redis port. The host is defaulted to "localhost". To access redis in the |  |                                         | specs you can user $redis                                                |
- | redis_db               | 0              | Redis database index.                                                    |
- | log_player_integration | true           | Log player integration on/off (more is described later)                  |
- | log_player_redis_db    | 1              | Log player Redis db                                                      |
-
-
-### Log Player Integration
-
-Count-von-Count uses the specs to test the log player. The log player tries to imittate the Nginx argument parsing , so its important to test it everytime you count things. 
-
-If the specs we write make a request to the Nginx, than we can take advantage of the the access.log file and test the log player. The access.log is given as an input to the log player, which stores the keys in a different database, and than we can that that the 2 databases are the same.
-
-![alt-tag](https://s3-us-west-2.amazonaws.com/action-counter-logs/LogPlayerIntegrator.png)
-
-This behaviour can be turned off from the `spec_config.yml` file. 
-
-Deploy using Ruby and [Capistrano](https://github.com/capistrano/capistrano)
----------------------------------------------------------
    Edit `deploy.rb` file and set the correct deploy user and your servers ips in the `deploy` and `env_servers` variables.
 
    **for the first time** run `cap deploy:setup` to bootstrap the server.
@@ -618,8 +590,19 @@ Deploy using Ruby and [Capistrano](https://github.com/capistrano/capistrano)
    use `cap deploy` to deploy master branch to production.
 
    use `cap deploy -S env=qa -S branch=bigbird` if you want to deploy to a different environment and/or a different branch.
-   
 
-Pitfalls & Gotcha
--------------------
-(missing params in query string)
+#Contributing
+
+  1. Fork it
+  2. Create your feature branch (git checkout -b my-new-feature)
+  3. Commit your changes (git commit -am 'Added some feature')
+  4. Push to the branch (git push origin my-new-feature)
+  5. Create new Pull Request
+
+# Contact Us
+
+For any questions, suggestions or feedback, feel free to mail us at:
+
+ron@ftbpro.com
+shai@ftbpro.com
+

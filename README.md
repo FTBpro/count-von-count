@@ -16,9 +16,9 @@ Count-von-Count is an open source project that was developed in FTBpro for a gam
     * [Multiple Objects of The Same Type](#multiple-objects-of-the-same-type)
     * [Multiple Objects of Different Type](#multiple-objects-of-different-types)
     * [Object With Multiple Ids](#object-with-multiple-ids)
-    * [Dynamic Count - Parameter as Counter Name](#dynamic-count-parameter)
-    * [Counting Several Actions](#counting-serveral-actions)
-    * [Ordered Sets (Leaderboard) - Save The Counters Data in Order](#orederd-sets)
+    * [Dynamic Count - Parameter as Counter Name](#dynamic-count)
+    * [Counting Several Actions](#counting-several)
+    * [Ordered Sets (Leaderboard) - Save The Counters Data in Order](#ordered)
     * [Advance: Custom Functions - Writing Your Own Logic](#advance)
     * [Variable Count - Not Just Increase by 1](#variable-count)
   * [Expire - Setting TTL on Redis Data](#expire)
@@ -30,7 +30,7 @@ Count-von-Count is an open source project that was developed in FTBpro for a gam
       * [Customization](#customization)
 * [Retrieving Data](#retrieving-data)
 * [Advanced](#advanced)
-  * [Architecuture](#architecture)
+  * [Architecture](#architecture)
   * [Log Player](#log-player)
   * [Deploy using Ruby and Capistrano](#deploy-using-ruby)
   * [Contributing](#contributing)
@@ -38,14 +38,14 @@ Count-von-Count is an open source project that was developed in FTBpro for a gam
 
 #What It's All About?
 
-Count-von-Count can help you whenver you need to store counters data. His advantage is that he can process thousands of requests a sceond, and update the numbers in real-time, no caching/backbround processes needed.
+Count-von-Count can help you whenever you need to store counters data. His advantage is that he can process thousands of requests a second, and update the numbers in real-time, no caching/background processes needed.
 
 With Count-von-Count you can:
 
 1. Count number of visitors to a site/page.
 2. Track number of clicks hourly/daily/weekly/yearly etc...
 3. Measure load time in any client and quickly see the slowest clients.
-4. Store anykind of Leaderboard, such as top writers, top readers, top countries your visitors are coming from.
+4. Store any kind of Leaderboard, such as top writers, top readers, top countries your visitors are coming from.
 5. Anything that can be counted!
 
 Here are some ways that we use it in [FTBPro.com](https://www.ftbpro.com)
@@ -55,7 +55,7 @@ Here are some ways that we use it in [FTBPro.com](https://www.ftbpro.com)
 # General Overview 
 
 Count-von-Count is a web server that uses Redis as a database. When a client wants to tell the server on an event that should be counted, he calls it in the following format: <server_ip>/<action_name>?<params>. This calls always return a 1X1 empty pixel, for reducing the overhead in calling it form javascripts clients. 
-A configuration file, [von_vount.config](#counting-configuration), which is defined in the server, sets the rules of the counting - what to update for each action. The updates are synchronously commited to the dababase.
+A configuration file, [von_vount.config](#counting-configuration), which is defined in the server, sets the rules of the counting - what to update for each action. The updates are synchronously committed to the database.
 The sever also has an api for retrieving the data.
 
 #Installation
@@ -99,7 +99,7 @@ Now, after you've understood the general overview of how the system works, and y
 
 The `config/voncount.config` file is the heart of the system, and determines what gets count and how.
 
-The file is written in standart JSON format, and for most use-cases changing it and customizing it to your needs is enough. **You won't even need to write code!**
+The file is written in standard JSON format, and for most use-cases changing it and customizing it to your needs is enough. **You won't even need to write code!**
 
 We'll show here some examples that covers all the different options the system support. most of them are real life examples taken from our production environment. 
 
@@ -148,7 +148,7 @@ Making the same call again, will result in changing the value of `<OBJECT>_<ID>`
 
 #Counting Configuration
 
-As mentioned earlier,`config/voncount.config` file is the heart of the system, and determines what gets count and how. Let's go over the different configration options.
+As mentioned earlier,`config/voncount.config` file is the heart of the system, and determines what gets count and how. Let's go over the different configuration options.
 
 ##Counting Options
 
@@ -296,7 +296,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    **WAIT A SECOND!** the query string contains only a `user` parameter, where does the other 3 parameters (`day`, `month`, `year`) come from?!? Read more about it on [Request Metadata Parameters Plugins](#request-metadata-parameters-plugins).
    
 
-### Dynamic Count - Parameter as `<COUNTER>` Name
+### Dynamic Count - Parameter as <COUNTER> Name
    We can use parameters to determine the `<COUNTER>` name. In that way we can dynamically determine what gets count.
    
    In this example, we count the number of reads an author had from each country (every week).
@@ -379,7 +379,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
 ### Ordered Sets (Leaderboard) - Save The Counters Data in Order
    In all previous examples the data was saved in Redis Hash type.
 
-   It is possible to save the data in order set as well. In that way, your data can be sorted automaticaly. This is very useful for storing leadeboards.
+   It is possible to save the data in order set as well. In that way, your data can be sorted automatically. This is very useful for storing leaderboards.
    
    For example, we want to know the "top 3 posts" (posts that got the most reads) in each day - 
    
@@ -404,7 +404,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    ```
    You can see we defined a `type` equals to "set". you can also define `type` as "hash" which is the default option so you can just skip this definition like in previous examples.
    
-   \* We are using the `post` id as part of the `<COUNTER>` name, similar to [Dynamic Count - Parameter as Counter Name](#dynamic-counters)
+   \* We are using the `post` id as part of the `<COUNTER>` name, similar to [Dynamic Count - Parameter as Counter Name](#dynamic-counter)
    
    The data for this example will look like -
    
@@ -419,12 +419,12 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    >     ...
    >}
    
-   The data is ordered, and you can retrieve it using Redis's `zrange` and `zrevrange` commands, and - for the sake of our example - get the "top 3 posts" without fetching the entire set and doing your own sort on the values, but simply by - `zrevrange PostDaily_28_11_2013 0 2`
+   The data is ordered, and you can retrieve it using Redis `zrange` and `zrevrange` commands, and - for the sake of our example - get the "top 3 posts" without fetching the entire set and doing your own sort on the values, but simply by - `zrevrange PostDaily_28_11_2013 0 2`
    
-   Later when we'll talk about [retrieving data](#retrieving-data), we'll show how to retrive data through the server, and without accessing Redis directly.
+   Later when we'll talk about [retrieving data](#retrieving-data), we'll show how to retrieve data through the server, and without accessing Redis directly.
 
 ### Advance: Custom Functions - Writing Your Own Logic
-    You have the option  to go crazy and implement more complex logics for your counters. To do that, you'll need to get your hands a bit dirty, and write some Lua code.
+  You have the option  to go crazy and implement more complex logics for your counters. To do that, you'll need to get your hands a bit dirty, and write some Lua code.
 
    In this example we'll implement *conditional count*:
    
@@ -492,7 +492,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
          * `key` will always receive the same value - the string "posts"
       - `self:count(key, 1)` - is a call to a different function - `count` - which is the basic count functionality and is already defined in the `lib/redis/voncount.lua` file. (`self` is the current instance of the `Base` class that defines the `count` function and our new `conditionalCount` custom function)
       
-   \* **Notice** that the `post_create` count for the `User` object is not effected, and it always gets count, even if the `long_post` parameter is "false".
+   \* **Notice** that the `post_create` count for the `User` object is not affected, and it always gets count, even if the `long_post` parameter is "false".
   
    The data will look like - 
    >TeamCounters_7: { posts: 324 }
@@ -529,7 +529,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
   
   You can put it on any `<OBJECT>` in the config, and it sets its TTL (time to live) in Redis. The value is in seconds (e.g. 1209600 = 2 weeks).
   
-  This is usefull in order to keep the amount of data in the DB at a sane size, and also help keep it clean from old irrelevant data that we may never need again.
+  This is useful in order to keep the amount of data in the DB at a sane size, and also help keep it clean from old irrelevant data that we may never need again.
   
   The TTL is set on the first time the data is created in our Redis DB, and it is **not** getting extended when the data is updated!
   
@@ -597,13 +597,14 @@ This plugin is disabled by default.To enable it uncomment 'country' in `lib/ngin
 
 ![Architecture](https://s3-us-west-2.amazonaws.com/action-counter-logs/cvc2.png)
 
-Count-von-Count uses [OpenResty](http://openresty.org/) as a web server. It's basicaly a Nginx server, bundled with 3-rd party modules. One of them is [lua-nginx-module](https://github.com/chaoslawful/lua-nginx-module) which adds the ability to execute Lua scripts in the context of Nginx. Another useful module is [lua-resty-redis](https://github.com/agentzh/lua-resty-redis) which we use to comminicate with Redis, which is where we store the data.
+Count-von-Count uses [OpenResty](http://openresty.org/) as a web server. It's basically a Nginx server, bundled with 3-rd party modules. One of them is [lua-nginx-module](https://github.com/chaoslawful/lua-nginx-module) which adds the ability to execute Lua scripts in the context of Nginx. Another useful module is [lua-resty-redis](https://github.com/agentzh/lua-resty-redis) which we use to comminicate with Redis, the place where we store the data.
 
 The flow of a counting request is:
-1. A client sends a request in the format of <count_von_count_server>/<action>?params. When the request arrives, Nginx triggers a lua script. After the script finishes, an empty 1X1 pixel is returned to the client.
-2. This Lua scripts parse the query params from the request, adds addtional params using the Request Metadata Paramerts Plugins and calls Redis to evaluate a preloaded Lua script.
+
+1. A client sends a request in the format of count_von_count_server/<action>?params. When Nginx receives the request, a Lua script is executed. After the script finishes, an empty 1X1 pixel is returned to the client.
+2. This Lua scripts parse the query params from the request, adds additional params using the Request Metadata Parameters Plugins and calls Redis to evaluate a preloaded Lua script.
 3. The redis script updates all the relevant keys , according to the von_count.config configuration file.
-4. In case of a disaster, a recovery is available through a Log Player.
+4. In case of a disaster, a recovery is available through the Log Player.
 
 ##Log Player
 
@@ -634,4 +635,3 @@ For any questions, suggestions or feedback, feel free to mail us at:
 ron@ftbpro.com
 
 shai@ftbpro.com
-

@@ -4,6 +4,24 @@
 
 Count-von-Count is an open source project that was developed in FTBpro for a gamification project and it turned to be something the can count any kind of action.  It is based on Nginx and Redis, leverages them to create a live, scalable and easy to use counting solution for a wide range of scenarios.
 
+
+# Table of Contents
+
+* [What it's all about](#what-it's-all-about)
+* [General Overview](#general-overview)
+* [Getting Started - Counting, Its easy as 1,2,3](#getting-started)
+* [Counting Configuration](#counting-configuration)
+  * [Counting Options](#counting-options)
+    * [Simple Count](#simple-count)
+    * [Multiple Objects of The Same Type](#multiple-objects-of-the-same-type)
+    * [Multiple Objects of Different Type](#multiple-objects-of-different-types)
+    * [Object With Multiple Ids](#object-with-multiple-ids)
+    * [Dynamic Count - Parameter as <COUNTER> name](#dynamic-counter-parameter)
+    * [Existing Objects, Different Actions](#existing-objects-different-actions)
+    * [Ordered Sets (Leaderboard) - Save The Counters Data in Order](#oredered-sets-(leaderboard)
+    * [Advance: Custom Functions - Writing Your Own Logic](#advanc:-custon-functions)
+    * [Variable Count - Not Just Increase by 1](#variable-count-not-only)
+
 #What it's all about?
 
 Count-von-Count can help you whenver you need to store counters data. His advantage is that he can process thousands of requests a sceond, and update the numbers in real-time, no caching/backbround processes needed.
@@ -125,7 +143,7 @@ To get you in context, here is a short description of our domain -
 At [FTBpro](https://www.ftbpro.com) we have `posts`, `users`, and `teams`. 
 each `post` is written by a `user` who is the author, and the post "belongs" to a `team`.
 
-###1. simple count - post read
+### Simple Count
    when a `post` gets read, we want to increase a counter for the post's `author` (an `author` is basically a `User` of our site), so we know how many reads that user got. here is the config file:
    ```JSON
    {
@@ -161,7 +179,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    
    **Notice** - in the config JSON, the value of `<ACTION>` (`reads`) is a hash, and the value of the `<OBJECT>` (`User`) is an array of hashes.
    
-###2. simple count - multiple objects of the same type
+### Multiple Objects of The Same Yype
    now lets also count how many posts a user has read. 
 
    Meaning, that when a post gets read, we want to increase a counter for the author, like in previous example, and also increase a counter for the user who is now reading the post in order to know how many posts each user has read.
@@ -192,7 +210,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    >
    >User_5678: { reads: 1 }
    
-###3. simple count - multiple objects of different types
+### Multiple Objects of Different Types
    We also want to know how many `reads` each `Post` received.
 
    We add the following configuration for `Post` object under the `reads` action, and we add a 'post' id to the query string parameters. 
@@ -229,7 +247,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    >Post_888:  { reads: 1 }
    
    
-###4. simple count - object with multiple IDs
+### Object With Multiple Ids
    At [FTBpro](https://www.ftbpro.com) we are doing daily analytics. 
 
    For each `user` we want to know how many posts he read in each day.
@@ -264,7 +282,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    **WAIT A SECOND!** the query string contains only the `user` parameter, where does the other 3 parameters (`day`, `month`, `year`) come from?!? Read more about it on [Request Metadata Parameters Plugins](#request-metadata-parameters-plugins).
    
 
-###5. dynamic count - parameter as `<COUNTER>` name
+### Dynamic Count - Parameter as `<COUNTER>` Name
    We can use parameters to determine the `<COUNTER>` name. in that way we can dynamically determine what gets count.
    
    In this example, we count for an `author` how many reads he had from each country (every week).
@@ -298,7 +316,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
   \* `<COUNTER>` names can be be more complex. lets say we have a `registered` parameter in the request query string, so in the config file we can define - `"count": "from_{country}_{registered}"`
 
    
-###6. simple count - existing objects, different actions
+### Existing Objects, Different Actions
    So far we've seen examples related to posts reads, but users can also comment on posts. 
    very similar to the `reads` action, we also want to count:
      * for each `author` - how many comments he received on his posts
@@ -344,7 +362,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    >
    >Post_888:  { comments: 1 }
    
-###7. ordered sets (leaderboard) - save the counters data in order
+### Ordered Sets (Leaderboard) - Save The Counters Data in Order
    In all previous examples the data saved in Redis was of type Hash. 
 
    Its possible to save the data in ZSet as well. in that way you can get data already ordered by the counters value. 
@@ -394,7 +412,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
 
    Later when we'll talk about [retriving data](#retriving-data), we'll show how to retrive data through the server, and without accessing Redis directly.
 
-###8. advance count - custom functions - writing your own logic
+### Advance: Custom Functions - Writing Your Own Logic
    the system enables you to go crazy and implement more complex logics for your counters. To do that, you'll need to get your hands a bit dirty, and write some Lua code.
 
    in this example we'll implement *conditional count*:
@@ -468,7 +486,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    The data will look like - 
    >TeamCounters_7: { posts: 324 }
    
-###9. variable count - not just increase by 1
+### Variable Count - Not Just Increase by 1
    In all previous examples we always increased the `<COUNTER>` by 1 with each call, but this doesn't have to be the case.
 
    The system lets you decide the increment number using the `change` definition in the config file.
@@ -495,7 +513,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    
    \* `change` can have any integer value, not just 1 or -1!
    
-  ##Expire - setting TTL on Redis data
+## Expire - setting TTL on Redis data
   Those of you with a keen eye might have noticed that in examples #4 and #7 the configuration include an `expire` definition.
   
   You can put it on any `<OBJECT>` in the config, and it sets its TTL (time to live) in Redis. The value is in seconds (e.g. 1209600 = 2 weeks).
@@ -519,12 +537,12 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
   If we'll wait another 10 days, this data will be gone!
   
 
-   # Request Metadata Parameters Plugins
+# Request Metadata Parameters Plugins
 
    Sometimes there is need that the key names will consist data that is not part of the request arguments, but is based on the request metadata. Currently, we support 2 types this cases: date_timeparamerters and country parameter.    
    The Request Metadata Parameters works as a plugin mechanisem. Enabling/disabling plugins can be done by adding/removing the plugin name in `lib/nginx/request_metadata_parameters_plugins/registered_plugins.lua'. Let's discuss the default plugins which come out of the box.
    
-   ## DateTime Plugin
+## DateTime Plugin
    
    | Parameter Name | Description                                                          |
    |----------------|----------------------------------------------------------------------|
@@ -534,7 +552,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    | *month*        | month index of the year (out of 12)                                  |
    | *year*         | in 4 digits format                                                   |
 
-  ### Adding custom date_time paramaeters
+### Adding custom date_time paramaeters
   
   The plugin comes with the arguments that we think are needed. If you want to add your parameters just update `lib/nginx/request_metadata_parameters_plugins/date_time.lua' with the relevant time formation.
    
@@ -547,7 +565,7 @@ each `post` is written by a `user` who is the author, and the post "belongs" to 
    | *country*      | 2-letters country code according to the IP from which the call       |
    
    
-  #### Prerequisites
+#### Prerequisites
    
    This plugin uses [lua-geoip](https://github.com/agladysh/lua-geoip) and thus the following steps are necessary for this plugin:
    

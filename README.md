@@ -4,11 +4,9 @@
 
 Count-von-Count is an open source project that was developed in FTBpro for a gamification project and it turned to be something the can count any kind of action.  It is based on Nginx and Redis, leverages them to create a live, scalable and easy to use counting solution for a wide range of scenarios.
 
-#What can be counted?
+#What it's all about?
 
-Here are some ways that we use it in [FTBPro.com](https://www.ftbpro.com)
-
-![Some Counters](http://media.tumblr.com/c0508089f2e631613bff664a94599d10/tumblr_inline_mwtdlnw5d21s9eocl.png)
+Count-von-Count can help you whenver you need to store counters data. His advantage is that he can process thousands of requests a sceond, and update the numbers in real-time, no caching/backbround processes needed.
 
 With Count-von-Count you can:
 
@@ -17,6 +15,9 @@ With Count-von-Count you can:
 3. Measure load time in any client and quickly see the slowest clients.
 4. Store anykind of Leaderboard, such as top writers, top readers, top countries your visitors are coming from.
 5. Anything that can be counted!
+
+Here are some ways that we use it in [FTBPro.com](https://www.ftbpro.com)
+![Some Counters](http://media.tumblr.com/c0508089f2e631613bff664a94599d10/tumblr_inline_mwtdlnw5d21s9eocl.png)
 
 # General Overview 
 
@@ -94,14 +95,6 @@ That's it! For each post that gets read you'll have data in the Redis DB of the 
 
 e.g, to get the number of reads for post 3144 you can run `redis-cli hget Post_3144 num_reads`
 
-
-#Configuration
-
-##Counting Options
-
-### General Usage
-
-
 Lets see a general example for the most basic use case:
 
 ```JSON
@@ -120,8 +113,13 @@ with this config file, we can make a call to ```http://my-von-count.com/<ACTION>
 
 making the same call again, will result in changing the value of `<OBJECT>_<ID>` to `{ <COUNTER>: 2 }`
 
-Ok, so that was probably a bit vague, lets look at some concrete examples:
-to get you in context, here is a short description of our domain - 
+#Counting Configuration
+
+As mentioned earlier,`config/voncount.config` file is the heart of the system, and determines what gets count and how. Let's go over the different configration options.
+
+##Counting Options
+
+To get you in context, here is a short description of our domain - 
 
 At [FTBpro](https://www.ftbpro.com) we have `posts`, `users`, and `teams`. 
 each `post` is written by a `user` who is the author, and the post "belongs" to a `team`.

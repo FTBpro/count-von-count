@@ -38,7 +38,7 @@ Count-von-Count is an open source project that was developed in FTBpro for a gam
 
 #What It's All About?
 
-Count-von-Count can help you whenever you need to store counters data. His advantage is that he can process thousands of requests a second, and update the numbers in real-time, no caching/background processes needed.
+Count-von-Count can help you whenever you need to store counters data. Its advantage is that it can process thousands of requests a second and update the numbers in real-time, no caching/background processes needed.
 
 With Count-von-Count you can:
 
@@ -55,7 +55,7 @@ Here are some ways that we use it in [FTBPro.com](https://www.ftbpro.com)
 # General Overview 
 
 Count-von-Count is a web server that uses Redis as a database. When a client wants to tell the server on an event that should be counted, he calls it in the following format: <server_ip>/<action_name>?<params>. This calls always return a 1X1 empty pixel, for reducing the overhead in calling it form javascripts clients. 
-A configuration file, [von_vount.config](#counting-configuration), which is defined in the server, sets the rules of the counting - what to update for each action. The updates are synchronously committed to the database.
+A configuration file, [von_vount.config](#counting-configuration), which is defined in the server, sets the rules of the counting - what to update for each action. No coding is needed! The updates are synchronously committed to the database.
 The sever also has an api for retrieving the data.
 
 #Installation
@@ -591,6 +591,23 @@ This plugin is disabled by default.To enable it uncomment 'country' in `lib/ngin
 
 #Retrieving Data
 
+Retrieving data is possible through count-von-count api or direct access to the Redis instance.
+
+## Get Key Api
+
+### Simple Get
+
+Accessing <counter_server>/get?key=<key_name> will return a json containing all the hash fields of the given key.
+For example, Getting number of reads of post_1:
+
+http://counter.ftbpro.com/get?key=Post_1
+
+ ```JSON
+  {
+    reads: "3"   
+  }
+   ```
+   
 #Advanced
 
 ##Architecture
@@ -632,6 +649,6 @@ Count-von-count comes with a log player.It is very useful in cases of recovery a
 
 For any questions, suggestions or feedback, feel free to mail us at:
 
-ron@ftbpro.com
+Ron Schwartz - ron@ftbpro.com
 
-shai@ftbpro.com
+Shai Kerer - shai@ftbpro.com

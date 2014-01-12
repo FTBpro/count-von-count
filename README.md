@@ -10,6 +10,8 @@ Count-von-Count is an open source project that was developed in FTBpro for a gam
 * [What It's All About](#what)
 * [General Overview](#general-overview)
 * [Getting Started - Counting, Its easy as 1,2,3](#getting-started)
+  * [Clients](#clients)
+  * [Server Configuration](#server-config) 
 * [Counting Configuration](#counting-configuration)
   * [Counting Options](#counting-options)
     * [Simple Count](#simple-count)
@@ -52,11 +54,13 @@ Here are some ways that we use it in [FTBPro.com](https://www.ftbpro.com)
 
 ![Some Counters](http://media.tumblr.com/c0508089f2e631613bff664a94599d10/tumblr_inline_mwtdlnw5d21s9eocl.png)
 
-# General Overview 
+# General Overview
 
-Count-von-Count is a web server that uses Redis as a database. When a client wants to tell the server on an event that should be counted, he calls it in the following format: <server_ip>/<action_name>?<params>. This calls always return a 1X1 empty pixel, for reducing the overhead in calling it form javascripts clients. 
+![General Overview](https://s3-us-west-2.amazonaws.com/action-counter-logs/cvc-general.png)
+
+Count-von-Count is a web server that uses Redis as a database. When a client wants to report an action which should be counted, he initiates a request to the counting server: `<server_ip>/<action_name>?<params>`. The response is a 1X1 empty pixel, for reducing the overhead in calling it form javascripts clients. 
 A configuration file, [von_vount.config](#counting-configuration), which is defined in the server, sets the rules of the counting - what to update for each action. No coding is needed! The updates are synchronously committed to the database.
-The sever also has an api for retrieving the data.
+The sever also has an api for [retrieving](#retrieving-data) the data.
 
 #Installation
 
@@ -94,6 +98,18 @@ The sever also has an api for retrieving the data.
 7. For the first time and every time you modify the `voncount.config` or the code - run `sudo ./lib/scripts/reload.sh`
        
 # Getting Started - Counting, Its easy as 1,2,3
+
+## Clients
+
+Each request to the server should be in the following fromat: `<server_ip>/<action_name>?<params>`.
+
+### Browsers 
+
+Add an img element to your html document `<img src=<server_ip>/<action_name>?<params>>`. You can also load it using Javascript.
+
+Some browsers preform assets caching on images, so it's important to add to the request a parameter that changes from request to request, e.g, current time: `<img src=<server_ip>/<action_name>?<param1=arg1>&<param2=arg2>&ts=<current_time>`
+
+## Server Configuration
 
 Now, after you've understood the general overview of how the system works, and you installed & setup your server, you are ready to get your hands really dirty! :-)
 

@@ -613,16 +613,67 @@ Retrieving data is possible through count-von-count api or direct access to the 
 
 ### Simple Get
 
-Accessing <counter_server>/get?key=<key_name> will return a json containing all the hash fields of the given key.
-For example, Getting number of reads of post_1:
+Accessing <counter_server>/get?key=<key_name> will return a json containing all the fields of the given key. 
+This works for both Redis Hashes and Sets.
+For example, Getting all counters for Post_1:
 
-http://counter.ftbpro.com/get?key=Post_1
+http://my-von-count.com/get?key=Post_1
 
  ```JSON
   {
-    reads: "3"   
+    reads: "10",
+    likes: "3",
+    shares: "1"
   }
    ```
+   
+***Notice*** - you will not get zero values. for example, if you count a `share` action, but no body shared your post, then the result JSON will simply not have the "shares" key.
+
+### Attributes Get
+
+Instead of getting all the existing key-value pairs of an object, you can query for specific attributes, by passing an `attr[]` parameter in the request query string. 
+
+For example, if you want to get only the `likes`, `shares` and `tweets` count for a Post_1 (without the `reads`):
+
+http://my-von-count.com/get?key=Post_1&attr[]=likes&attr[]=shares&attr[]=tweets
+
+ ```JSON
+  {
+    likes: "3",
+    shares: "1",
+    tweets: null
+  }
+   ```
+
+***Notice*** - 
+ * If you ask for an attribute that doesn't exist (or simply didn't get counts yet), the result will contain its key-value pair, as opposed to before, but with a `null` value, like for the `tweets` counter above.
+ * You can ask for a single attribute, without using the array syntax - http://counter.ftbpro.com/get?key=Post_1&attr=likes - and the result will be a simple number (or null) and not a JSON!
+
+### Ordered Set - Get Range
+
+When requesting the value for an ordered set, you can get all the results by providing only the key, like in the first example in this section, but you can also request a specific range. here are some examples:
+
+ * top 5 (highest values) - http://my-von-count.com/get?key=PostDaily_28_11_2013&from=0&to=5
+ * last 5 (lowest values) - http://my-von-count.com/get?key=PostDaily_28_11_2013&from=-5&to=-1
+ * all values - http://my-von-count.com/get?key=PostDaily_28_11_2013&from=0&to=-1
+ * places 10 to 30 - http://my-von-count.com/get?key=PostDaily_28_11_2013&from=10&to=20 
+   ***Notice*** the `to` parameter in the query string has a bad name, it should actually be called something like `amount`. In this example we ask for results from place 10, and we ask for 20 results! giving a -1 value to `to` is actually asking for the results from `from` and till the end.
+
+results may look something like:
+ ```JSON
+  {
+   post_471049: "13787",
+   post_473365: "8857",
+   post_473813: "8181",
+   post_472293: "14016",
+   post_476298: "4127",
+   post_464297: "9228"
+  }
+  ```
+
+***Notice*** - like stated in the 1st example, the result JSON is NOT ordered, since JSON has no gurantee to order of key-value pairs.
+
+
    
 #Advanced
 

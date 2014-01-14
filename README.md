@@ -2,7 +2,7 @@
 
 ![alt tag](http://1.bp.blogspot.com/_zCGbA5Pv0PI/TGj5YnGEDDI/AAAAAAAADD8/ipYKIgc7Jg0/s400/CountVonCount.jpg)
 
-Count-von-Count is an open source project that was developed in FTBpro for a gamification project and it turned to be something the can count any kind of action.  It is based on Nginx and Redis, leverages them to create a live, scalable and easy to use counting solution for a wide range of scenarios.
+Count-von-Count is an open source project that was developed at FTBpro for a gamification project and it turned into something the can count any kind of action.  It is based on Nginx and Redis, leverages them to create a live, scalable and easy to use counting solution for a wide range of scenarios.
 
 
 # Table of Contents
@@ -44,10 +44,10 @@ Count-von-Count can help you whenever you need to store counters data. Its advan
 
 With Count-von-Count you can:
 
-1. Count number of visitors to a site/page.
+1. Count number of visitors on a site/page.
 2. Track number of clicks hourly/daily/weekly/yearly etc...
 3. Measure load time in any client and quickly see the slowest clients.
-4. Store any kind of Leaderboard, such as top writers, top readers, top countries your visitors are coming from.
+4. Store any kind of Leaderboard, such as top writers, top readers, top countries your visitors are come from.
 5. Anything that can be counted!
 
 Here are some ways that we use it in [FTBPro.com](https://www.ftbpro.com)

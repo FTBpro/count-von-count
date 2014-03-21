@@ -42,6 +42,8 @@ Count-von-Count is an open source project that was developed at FTBpro for a gam
 
 Count-von-Count can help you whenever you need to store counters data. Its advantage is that it can process thousands of requests per second and update the numbers in real-time, no caching/background processes needed.
 
+[Here is a short video about this project](https://www.youtube.com/watch?v=VG8iOVNS_xg)
+
 With Count-von-Count you can:
 
 1. Count number of visitors on a site/page.

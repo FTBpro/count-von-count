@@ -69,7 +69,7 @@ The sever also has an API for [retrieving](#retrieving-data) the data.
 1. Install redis-server (apt-get install redis-server). You can also use one of your previously installed servers.
 2. Download and install [OpenResty](http://openresty.org/#install). Use default settings and directory structure!
 3. Clone count-von-count.
-4. If you are not using Redis with its default settings (localhost, port 6479), update `config/system.config` file with the Redis server IP and port.
+4. If you are not using Redis with its default settings (localhost, port 6379), update `config/system.config` file with the Redis server IP and port.
 5. Edit openresty's nginx.conf file (by default, it's in /usr/local/openresty/nginx/conf)
    * add `worker_rlimit_nofile 30000;` at the top level
    * add `include /usr/local/openresty/nginx/conf/include/*;` under the 'http' section

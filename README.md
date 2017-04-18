@@ -1,4 +1,4 @@
-#Count Von Count
+# Count Von Count
 
 ![alt tag](http://1.bp.blogspot.com/_zCGbA5Pv0PI/TGj5YnGEDDI/AAAAAAAADD8/ipYKIgc7Jg0/s400/CountVonCount.jpg)
 
@@ -38,7 +38,7 @@ Count-von-Count is an open source project that was developed at FTBpro for a gam
   * [Contributing](#contributing)
   * [Contact Us](#contact-us)
 
-#What It's All About
+# What It's All About
 
 Count-von-Count can help you whenever you need to store counters data. Its advantage is that it can process thousands of requests per second and update the numbers in real-time, no caching/background processes needed.
 
@@ -64,7 +64,7 @@ Count-von-Count is a web server that uses Redis as a database. When a client wan
 A configuration file, [von_vount.config](#counting-configuration), which is defined in the server, sets the rules of the counting - what to update for each action. No coding is needed! The updates are synchronously committed to the database.
 The sever also has an API for [retrieving](#retrieving-data) the data.
 
-#Installation
+# Installation
 
 1. Install redis-server (apt-get install redis-server). You can also use one of your previously installed servers.
 2. Download and install [OpenResty](http://openresty.org/#install). Use default settings and directory structure!
@@ -164,11 +164,11 @@ With this configuration, we can make a call to ```http://my-von-count.com/<ACTIO
 
 Making the same call again will result in incrementing the value of `<OBJECT>_<ID>` to `{ <COUNTER>: 2 }`
 
-#Counting Configuration
+# Counting Configuration
 
 As mentioned earlier,`config/voncount.config` file is the heart of the system, and determines what gets counted and how. Let's go over the different configuration options.
 
-##Counting Options
+## Counting Options
 
 To get you in context, here is a short description of our domain - 
 
@@ -607,7 +607,7 @@ This plugin is disabled by default. To enable it, uncomment 'country' in `lib/ng
 
   You make your changes to `lib/nginx/request_metadata_parameters_plugins/date_time.lua`. For example, if you want to save the name of the country insted of its code, you can use `geoip.name_by_id(id)` method instad of `geoip.code_by_id(id)`
 
-#Retrieving Data
+# Retrieving Data
 
 Retrieving data is possible through the count-von-count API or direct access to the Redis instance.
 
@@ -677,9 +677,9 @@ Results may look something like:
 
 
    
-#Advanced
+# Advanced
 
-##Architecture
+## Architecture
 
 ![Architecture](https://s3-us-west-2.amazonaws.com/action-counter-logs/cvc2.png)
 
@@ -692,11 +692,11 @@ The flow of a counting request is:
 3. The Redis script updates all the relevant keys according to the von_count.config configuration file.
 4. In case of a disaster, recovery is available through the Log Player.
 
-##Log Player
+## Log Player
 
 Count-von-count comes with a log player. It is very useful in cases of recovery after system failure or running on old logs with new logic. Its input is an access log file (a log file where the Nginx logs each incoming request). It updates Redis based on the voncount.config.
 
-#Deploy using Ruby and [Capistrano](https://github.com/capistrano/capistrano)
+# Deploy using Ruby and [Capistrano](https://github.com/capistrano/capistrano)
 
    Edit `deploy.rb` file and set the correct deploy user and your servers' IPs in the `deploy` and `env_servers` variables.
 
@@ -706,7 +706,7 @@ Count-von-count comes with a log player. It is very useful in cases of recovery 
 
    Use `cap deploy -S env=qa -S branch=bigbird` if you want to deploy to a different environment and/or a different branch.
 
-##Contributing
+## Contributing
 
   1. Fork it
   2. Create your feature branch (git checkout -b my-new-feature)
